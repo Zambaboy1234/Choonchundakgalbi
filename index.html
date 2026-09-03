@@ -69,11 +69,11 @@
   #amberMap{width:100%;height:100%;overflow:visible;shape-rendering:geometricPrecision;-webkit-tap-highlight-color:transparent}
   #rotor{will-change:transform}
   #amberMap *{-webkit-tap-highlight-color:transparent}
-  .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease,opacity .16s ease}
+  .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transform-box:fill-box;transform-origin:center;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease,opacity .16s ease,transform .2s cubic-bezier(.2,.75,.25,1),filter .16s ease}
   .district.unnamed{fill:rgba(0,0,0,.72);stroke:rgba(150,162,156,.52);opacity:.48}
   .district:focus{outline:none}
-  .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.2);stroke:#f4fbf7;stroke-width:1.8;filter:drop-shadow(0 0 5px var(--accent))}
-  .district.selected{fill:rgba(var(--accent-rgb),.28);stroke:#fff;stroke-width:2.35;filter:drop-shadow(1px 0 rgba(255,70,78,.52)) drop-shadow(-1px 0 rgba(54,158,255,.56)) drop-shadow(0 0 8px var(--accent))}
+  .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.18);stroke:#eef6f2;stroke-width:1.65;filter:drop-shadow(0 0 2px rgba(var(--accent-rgb),.9)) drop-shadow(0 0 5px rgba(var(--accent-rgb),.46))}
+  .district.selected{fill:rgba(var(--accent-rgb),.3);stroke:#fff;stroke-width:2.55;transform:scale(1.018);filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 7px rgba(var(--accent-rgb),.96)) drop-shadow(0 0 14px rgba(var(--accent-rgb),.58)) drop-shadow(1px 0 rgba(255,70,78,.48)) drop-shadow(-1px 0 rgba(54,158,255,.5))}
   .district.unnamed:not(.selected):hover,.district.unnamed:not(.selected):focus-visible{fill:rgba(var(--accent-rgb),.18);stroke-width:1.8;opacity:1}
   .district.unnamed.selected{opacity:1}
   .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
@@ -82,10 +82,10 @@
   .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1}
   .tick{stroke:rgba(230,236,232,.45);stroke-width:.8;vector-effect:non-scaling-stroke}
   .zero-base{fill:url(#centralPattern);stroke:none;pointer-events:none}
-  .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,filter .2s}
+  .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transform-box:fill-box;transform-origin:center;transition:fill .2s,stroke .2s,filter .2s,transform .2s cubic-bezier(.2,.75,.25,1)}
   .zero-zone:focus{outline:none}
-  .zero-zone:hover,.zero-zone:focus-visible,.zero-zone.selected{fill:rgba(255,255,255,.11);stroke:#fff;filter:drop-shadow(1.5px 0 rgba(255,70,78,.6)) drop-shadow(-1.5px 0 rgba(54,158,255,.64)) drop-shadow(0 0 12px rgba(235,242,238,.8))}
-  .zero-zone.selected{stroke-width:2.7}
+  .zero-zone:hover,.zero-zone:focus-visible{fill:rgba(255,255,255,.09);stroke:#fff;filter:drop-shadow(0 0 5px rgba(235,242,238,.52))}
+  .zero-zone.selected{fill:rgba(255,255,255,.13);stroke:#fff;stroke-width:2.7;transform:scale(1.018);filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 8px rgba(235,242,238,.9)) drop-shadow(0 0 15px rgba(235,242,238,.5)) drop-shadow(1.5px 0 rgba(255,70,78,.54)) drop-shadow(-1.5px 0 rgba(54,158,255,.58))}
   .zero-core{fill:none;stroke:rgba(235,242,238,.42);stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
   .zero-mark{fill:#f5faf7;font-size:22px;font-weight:800;letter-spacing:.12em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;filter:drop-shadow(0 0 7px rgba(235,242,238,.45))}
   .map-caption{position:absolute;right:34px;bottom:34px;z-index:5;text-align:right;pointer-events:none}
@@ -138,6 +138,9 @@
   .list-row{display:grid;width:100%;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border:0;border-bottom:1px solid rgba(230,236,232,.1);background:transparent;color:inherit;text-align:left;cursor:pointer;outline:none;transition:.15s}
   .list-row:hover,.list-row:focus-visible{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.48);box-shadow:inset 3px 0 0 var(--accent)}
   .list-row .code{color:var(--accent);letter-spacing:.18em}.list-row .name{font-size:12px}.list-row .region{font-size:9px;color:#727d79;letter-spacing:.14em;text-align:right}
+  .list-row.unavailable{opacity:.56}
+  .list-row.unavailable .code,.list-row.unavailable .name,.list-row.unavailable .region{color:#69726f}
+  .list-row.unavailable:hover,.list-row.unavailable:focus-visible{opacity:.86}
   .list-empty{padding:34px;color:#737d79;font-size:11px}
 
   .simple-view{position:absolute;inset:0;z-index:12;display:none;padding:110px 80px 80px 132px}
@@ -238,7 +241,7 @@
 
 <section id="listView">
   <div class="list-shell">
-    <div class="list-head"><div class="list-title">DISTRICT INDEX</div><div class="search-wrap"><input id="districtSearch" type="search" autocomplete="off" placeholder="번호 또는 구역 이름" /></div></div>
+    <div class="list-head"><div class="list-title">DISTRICT INDEX</div><div class="search-wrap"><input id="districtSearch" type="search" autocomplete="off" placeholder="번호 / 이름 / 지도부 / 위치 / 산업" /></div></div>
     <div id="districtList" class="district-list"></div>
   </div>
 </section>
@@ -309,6 +312,10 @@
       noteAuthor:'인용자 플레이스홀더'
     };
   }
+  function isPlaceholderValue(value){
+    const text=String(value??'').trim();
+    return !text||text==='00'||text==='???'||/placeholder|플레이스홀더/i.test(text);
+  }
   async function loadDistrictData(){
     const fallback=[...Array(73)].map((_,i)=>defaultDistrict(i));
     const readJson=async url=>{
@@ -326,7 +333,7 @@
       const byId=new Map(districtPayloads.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
       return fallback.map((base,i)=>{
         const row=byId.get(i)||{};
-        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo,isNamed:Boolean(String(row.name??'').trim())};
+        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo,isNamed:!isPlaceholderValue(row.name)};
       });
     }catch(error){
       console.warn('District data load failed; using placeholders.',error);
@@ -503,12 +510,20 @@
 
   const list=document.getElementById('districtList'),search=document.getElementById('districtSearch');
   let visibleDistrictIds=[];
+  function meaningfulSearchValue(value){
+    const text=String(value??'').trim();
+    return isPlaceholderValue(text)?'':text;
+  }
+  function districtSearchText(d){
+    const code=String(d.id).padStart(2,'0'),region=regionFor(d.id),location=d.location||regionLabels[region]||'';
+    return [code,String(d.id),`${d.id}구역`,d.name,meaningfulSearchValue(d.leadership),location,region,meaningfulSearchValue(d.industry)].join(' ').toLowerCase();
+  }
   function renderList(q=''){
-    const query=q.trim().toLowerCase();list.innerHTML='';
-    const rows=districtData.filter(d=>!query || String(d.id).padStart(2,'0').includes(query) || d.name.toLowerCase().includes(query));
+    const tokens=q.trim().toLowerCase().split(/\s+/).filter(Boolean);list.innerHTML='';
+    const rows=districtData.filter(d=>!tokens.length || tokens.every(token=>districtSearchText(d).includes(token)));
     visibleDistrictIds=rows.map(d=>d.id);
     if(!rows.length){list.innerHTML='<div class="list-empty">NO MATCHING DISTRICT</div>';return}
-    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';const code=document.createElement('span');code.className='code';code.textContent=String(d.id).padStart(2,'0');const name=document.createElement('span');name.className='name';name.textContent=d.name;const region=document.createElement('span');region.className='region';region.textContent=regionFor(d.id);row.append(code,name,region);row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
+    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';row.classList.toggle('unavailable',!d.isNamed);const code=document.createElement('span');code.className='code';code.textContent=String(d.id).padStart(2,'0');const name=document.createElement('span');name.className='name';name.textContent=d.name;const region=document.createElement('span');region.className='region';region.textContent=regionFor(d.id);row.append(code,name,region);row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
   }
   search.addEventListener('input',()=>renderList(search.value));
   search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
