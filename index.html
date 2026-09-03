@@ -94,11 +94,17 @@
   .tooltip .n{font-size:11px;color:var(--accent);letter-spacing:.18em}
   .tooltip .t{font-size:10px;color:#dbe2de;margin-top:3px}
 
-  .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;pointer-events:none}
+  .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;min-height:0;pointer-events:none}
   .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease,border-color .3s;pointer-events:none}
   .panel.show{opacity:1;transform:translateY(0);pointer-events:auto;border-color:rgba(var(--accent-rgb),.52);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 24px rgba(var(--accent-rgb),.07),inset 0 0 24px rgba(255,255,255,.018)}
+  @keyframes panel-head-reveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes panel-body-reveal{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes logo-reveal{0%{opacity:0;transform:translateY(4px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
+  .panel-head.head-reveal{animation:panel-head-reveal .28s cubic-bezier(.22,.7,.25,1) both}
+  .panel-body.body-reveal{animation:panel-body-reveal .3s cubic-bezier(.22,.7,.25,1) both}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
+  .logo-slot.logo-reveal{animation:logo-reveal .28s ease-out both}
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
   .logo-fallback{padding:8px;font-size:8px;line-height:1.4;text-align:center;color:#6f7976;word-break:break-all}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
@@ -106,7 +112,7 @@
   .district-meta{font-size:9px;color:#87918e;letter-spacing:.12em;margin-top:8px}
   .close-btn{align-self:start;border:0;background:transparent;color:#7f8986;font-size:18px;cursor:pointer;padding:4px 7px}.close-btn:hover{color:#fff}
 
-  .panel-body{padding:18px 20px 22px;overflow:auto;line-height:1.75}
+  .panel-body{padding:18px 20px 22px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;line-height:1.75}
   .panel-body::-webkit-scrollbar{width:6px}.panel-body::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.4)}
   .section-label{font-size:9px;letter-spacing:.22em;color:var(--accent);margin-bottom:8px}
   .panel-body h2{font-size:15px;letter-spacing:.06em;margin:0 0 10px;font-weight:600}
@@ -116,7 +122,7 @@
   .kv{display:grid;grid-template-columns:92px 1fr;border-top:1px solid rgba(230,236,232,.14);font-size:10px}
   .kv div{padding:9px 0;border-bottom:1px solid rgba(230,236,232,.1)}.kv .k{color:#7d8784}.kv .v{color:#d7deda}
   .notes-quote{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif!important;color:rgba(197,206,202,.54)!important;font-size:12px!important;line-height:1.75;font-style:italic;opacity:.8}
-  .panel-stamp{position:absolute;right:16px;bottom:12px;font-size:8px;letter-spacing:.18em;color:#53605c}
+  .panel-stamp{margin:28px 0 2px;text-align:right;font-size:8px;letter-spacing:.18em;color:#53605c;white-space:normal;overflow-wrap:anywhere}
 
   /* list/search view */
   #listView{position:absolute;inset:0;z-index:12;display:none;padding:94px 50px 52px 126px}
@@ -218,10 +224,10 @@
     <h2 id="detailTitle">구역 설명</h2>
     <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
     <div class="kv">
-      <div class="k">구역 번호</div><div id="kvNumber" class="v"></div>
-      <div class="k">지도부</div><div id="kvLeadership" class="v"></div>
-      <div class="k">위치</div><div id="kvLocation" class="v"></div>
-      <div class="k">대표 산업</div><div id="kvIndustry" class="v"></div>
+      <div class="k">구역 번호</div><div id="kvNumber" class="v">00</div>
+      <div class="k">지도부</div><div id="kvLeadership" class="v">00</div>
+      <div class="k">위치</div><div id="kvLocation" class="v">동서남북부</div>
+      <div class="k">대표 산업</div><div id="kvIndustry" class="v">00</div>
     </div>
     <div class="section-label" style="margin-top:22px">NOTES</div>
     <p id="noteText" class="notes-quote">“소장 또는 대원 기록 인용구 플레이스홀더.”</p>
@@ -324,6 +330,7 @@
     if(a<225) return 'SOUTH';
     return 'EAST';
   }
+  const regionLabels={CENTRAL:'중앙',NORTH:'북부',WEST:'서부',SOUTH:'남부',EAST:'동부'};
 
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
@@ -421,8 +428,8 @@
 
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailQuoteSource=document.getElementById('detailQuoteSource'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText');
-  const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback');
-  let selectedId=null,ambientFrame=0,ambientRGB=[0,0,0];
+  const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback'),logoSlot=document.querySelector('.logo-slot');
+  let selectedId=null,ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
   const ambientA=document.getElementById('ambientA');
 
   function setAmbient(rgb,id){
@@ -439,17 +446,38 @@
   }
 
   function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')})}
+  function cancelPanelIntro(){panelIntroToken++;panelTimers.forEach(clearTimeout);panelTimers=[];infoHead.classList.remove('head-reveal');infoBody.classList.remove('body-reveal');logoSlot.classList.remove('logo-reveal')}
+  function typePanelText(el,text,token,delay,startDelay){
+    el.textContent='';let index=0;
+    const tick=()=>{if(token!==panelIntroToken)return;el.textContent=text.slice(0,index+1);index++;if(index<text.length){const timer=setTimeout(tick,delay);panelTimers.push(timer)}};
+    const timer=setTimeout(tick,startDelay);panelTimers.push(timer);
+  }
+  function revealPanelSequence(token,codeText,nameText,metaText){
+    infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
+    logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
+    const delay=14;
+    typePanelText(codeEl,codeText,token,delay,18);
+    typePanelText(nameEl,nameText,token,delay,48);
+    typePanelText(metaEl,metaText,token,delay,82);
+    const revealAfter=Math.max(codeText.length*delay+18,nameText.length*delay+48,metaText.length*delay+82)+72;
+    const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.remove('body-reveal');void infoBody.offsetWidth;infoBody.classList.add('show','body-reveal')},revealAfter);
+    panelTimers.push(timer);
+  }
   function selectDistrict(id,{align=false}={}){
+    cancelPanelIntro();
+    const token=panelIntroToken;
     selectedId=id;clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
-    codeEl.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;nameEl.textContent=d.name;metaEl.textContent=`${region} // PLACEHOLDER`;detailQuote.textContent='“구역 대표 인용구 플레이스홀더”';detailQuoteSource.textContent='— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent='구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent='';kvLeadership.textContent='';kvLocation.textContent='';kvIndustry.textContent='';noteText.textContent='“소장 또는 대원 기록 인용구 플레이스홀더.”';
-    logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.src=d.logo;logoImg.alt=`${d.name} 로고`;
-    logoImg.onload=()=>{logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{logoImg.style.display='none';logoFallback.style.display='grid'};
-    infoHead.classList.add('show');infoBody.classList.add('show');
+    const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
+    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent='“구역 대표 인용구 플레이스홀더”';detailQuoteSource.textContent='— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent='구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent='00';kvLocation.textContent=regionLabels[region]||'동서남북부';kvIndustry.textContent='00';noteText.textContent='“소장 또는 대원 기록 인용구 플레이스홀더.”';infoBody.scrollTop=0;
+    logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.alt=`${d.name} 로고`;
+    logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none';logoFallback.style.display='grid'};logoImg.src=d.logo;
+    infoBody.classList.remove('show');
+    revealPanelSequence(token,codeText,d.name,metaText);
     if(align)rotateToDistrict(id);
   }
-  document.getElementById('closeInfo').addEventListener('click',()=>{selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
+  document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
 
   // views
   const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),legend:document.getElementById('legendView'),system:document.getElementById('systemView')};
