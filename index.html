@@ -13,6 +13,7 @@
     --muted:#8b9694;
     --accent:#b56b35;
     --accent-rgb:181,107,53;
+    --ambient-r:0;--ambient-g:0;--ambient-b:0;
     --panel-w:min(34vw,520px);
     --menu-w:76px;
   }
@@ -34,7 +35,7 @@
     box-shadow:inset 0 0 120px #000, inset 0 0 18px #000;
   }
 
-  .ambient{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.22,.61,.36,1);background:#020304;will-change:opacity}
+  .ambient{position:fixed;inset:0;z-index:0;opacity:1;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:background}
   .ambient.on{opacity:1}
   .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.2;background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px}
   .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:.02;background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
@@ -152,7 +153,6 @@
 </head>
 <body>
 <div id="ambientA" class="ambient on"></div>
-<div id="ambientB" class="ambient"></div>
 <div class="grid"></div>
 <div class="noise-layer" aria-hidden="true"></div>
 <div class="frame"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
@@ -387,17 +387,13 @@
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvRegion=document.getElementById('kvRegion'),kvLogo=document.getElementById('kvLogo');
   const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback');
-  let selectedId=null;
-  const ambientA=document.getElementById('ambientA'),ambientB=document.getElementById('ambientB');
+  let selectedId=null,ambientFrame=0,ambientRGB=[0,0,0];
+  const ambientA=document.getElementById('ambientA');
 
   function setAmbient(rgb,id){
-    const current=ambientA.classList.contains('on')?ambientA:ambientB;
-    const next=current===ambientA?ambientB:ambientA;
-    next.style.background=id===0
-      ? 'radial-gradient(circle at 78% 24%, rgba(235,242,238,.025), transparent 52%), #020304'
-      : `radial-gradient(circle at 78% 24%, rgba(${rgb.join(',')},.46) 0%, rgba(${rgb.join(',')},.25) 30%, rgba(${rgb.join(',')},.09) 56%, transparent 77%), linear-gradient(118deg, rgba(${rgb.join(',')},.13), rgba(2,3,4,.94) 66%), #020304`;
-    next.classList.add('on');current.classList.remove('on');
-    document.body.style.backgroundColor=id===0?'#020304':`rgba(${rgb.join(',')},.08)`;
+    const target=id===0?[0,0,0]:rgb.slice(); const start=ambientRGB.slice(); const token=++ambientFrame; const t0=performance.now();
+    const step=now=>{if(token!==ambientFrame)return;const t=Math.min(1,(now-t0)/780),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;ambientRGB=start.map((v,i)=>Math.round(v+(target[i]-v)*e));ambientRGB.forEach((v,i)=>ambientA.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][i],v));if(t<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
   }
 
   function applyAccent(rgb,id){
@@ -444,7 +440,6 @@
   renderList();
 
   // initial neutral state
-  ambientA.style.background='radial-gradient(circle at 78% 24%, rgba(235,242,238,.018), transparent 52%), #020304';
   applyRotation();
 })();
 </script>
