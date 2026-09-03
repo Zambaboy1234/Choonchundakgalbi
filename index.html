@@ -265,9 +265,40 @@
   const labelLayer=svgNode('g',{'aria-hidden':'true'});
   rotor.append(districtLayer,ornamentLayer,labelLayer);
 
+  const districtNames={
+    1:'카스탈리엔',
+    4:'브랙튼 & 블랙스톤 LLC',
+    5:'니케아 신성수호청',
+    8:'하르덴브라흐 전략사령본부',
+    11:'볼칸 중공업',
+    15:'터미널15',
+    16:'찰스 브리게이드',
+    20:'아발론 PMC',
+    23:'제네시스 이니셔티브',
+    24:'아르고 호',
+    28:'심장',
+    32:'아스트론 학파 연구지구',
+    36:'오빗 프론티어',
+    38:'테일게이트 주식회사',
+    40:'힌튼 아카이브',
+    41:'자오선 이상현상 관리국',
+    43:'세크메트 에너제틱스',
+    44:'미라다 SA',
+    48:'천진개발공사',
+    54:'타츠우미 농축수산',
+    58:'서천 바이오 제약',
+    61:'산해경 콤비나트',
+    62:'산해경 콤비나트',
+    63:'산해경 콤비나트',
+    64:'산해경 콤비나트',
+    66:'코셰이',
+    69:'뤼미에르 예술 자치구',
+    71:'흑월상회',
+    72:'N.O.D.'
+  };
   const districtData=[...Array(73)].map((_,i)=>({
     id:i,
-    name:i===0?'CENTRAL DISTRICT':'DISTRICT '+String(i).padStart(2,'0'),
+    name:i===0?'CENTRAL DISTRICT':(districtNames[i]||'DISTRICT '+String(i).padStart(2,'0')),
     logo:`assets/logos/district-${String(i).padStart(2,'0')}.png`,
     description:i===0
       ? '0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.'
