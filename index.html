@@ -124,10 +124,9 @@
   @keyframes logo-reveal{0%{opacity:0;transform:translateY(4px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
   .panel-head.head-reveal{animation:panel-head-reveal calc(.34s * var(--motion-scale)) cubic-bezier(.22,.7,.25,1) both}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
-  .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
+  .logo-slot{width:92px;aspect-ratio:1;position:relative;display:grid;place-items:center;overflow:visible;background:transparent}
   .logo-slot.logo-reveal{animation:logo-reveal calc(.28s * var(--motion-scale)) ease-out both}
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
-  .logo-fallback{padding:8px;font-size:8px;line-height:1.4;text-align:center;color:#6f7976;word-break:break-all}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
   .district-name{font-family:"Arial Black",Impact,"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:28px;font-weight:900;letter-spacing:.035em;line-height:1.08;word-break:keep-all;text-rendering:geometricPrecision}
   .district-meta{font-size:9px;color:#87918e;letter-spacing:.12em;margin-top:8px}
@@ -235,14 +234,21 @@
   html[data-theme="light"] .zero-zone{fill:rgba(232,229,218,.22);stroke:#2b332f}html[data-theme="light"] .zero-zone:hover,html[data-theme="light"] .zero-zone:focus-visible,html[data-theme="light"] .zero-zone.selected{stroke:#121714}
   html[data-theme="light"] .zero-core{stroke:rgba(35,42,38,.34)}html[data-theme="light"] .zero-mark{fill:#222925;filter:none}
   html[data-theme="light"] .panel,html[data-theme="light"] .list-shell,html[data-theme="light"] .simple-card,html[data-theme="light"] .settings-shell{border-color:rgba(35,42,38,.34);background:linear-gradient(180deg,rgba(238,235,225,.96),rgba(224,221,210,.92));box-shadow:0 18px 50px rgba(66,54,38,.14)}
-  html[data-theme="light"] .logo-slot,html[data-theme="light"] #districtSearch,html[data-theme="light"] .segmented,html[data-theme="light"] .settings-reset{background:#ddd9ce;color:#202723;border-color:rgba(35,42,38,.28)}
+  html[data-theme="light"] #districtSearch,html[data-theme="light"] .segmented,html[data-theme="light"] .settings-reset{background:#ddd9ce;color:#202723;border-color:rgba(35,42,38,.28)}
+  html[data-theme="light"] .logo-slot img{filter:invert(1)}
   html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
   html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
   html[data-theme="light"] .panel-body p,html[data-theme="light"] .archive-quote,html[data-theme="light"] .setting-copy strong,html[data-theme="light"] .simple-card p{color:#303834}
-  html[data-theme="light"] .setting-copy span,html[data-theme="light"] .settings-group h3,html[data-theme="light"] .settings-status,html[data-theme="light"] .range-value,html[data-theme="light"] .district-meta,html[data-theme="light"] .logo-fallback{color:#5d6762}
+  html[data-theme="light"] .setting-copy span,html[data-theme="light"] .settings-group h3,html[data-theme="light"] .settings-status,html[data-theme="light"] .range-value,html[data-theme="light"] .district-meta{color:#505b55}
+  html[data-theme="light"] .side-mark,html[data-theme="light"] .map-caption .north,html[data-theme="light"] .map-caption .hint,html[data-theme="light"] .search-wrap::before,html[data-theme="light"] .list-row .region,html[data-theme="light"] .list-empty{color:#505b55}
+  html[data-theme="light"] .kv .k{color:#4b5650}
+  html[data-theme="light"] .close-btn{color:#59645e}html[data-theme="light"] .close-btn:hover,html[data-theme="light"] .close-btn:focus-visible{color:#151b18;outline:none}
+  html[data-theme="light"] .segment-btn{color:#59645e}html[data-theme="light"] .segment-btn:hover,html[data-theme="light"] .segment-btn:focus-visible{color:#151b18}
   html[data-theme="light"] .notes-quote{color:rgba(48,56,52,.62)!important}html[data-theme="light"] .notes-quote cite{color:rgba(65,75,69,.72)}html[data-theme="light"] .panel-stamp{color:#6e7772}
   html[data-theme="light"] .kv{border-color:rgba(35,42,38,.18)}html[data-theme="light"] .kv div,html[data-theme="light"] .setting-row,html[data-theme="light"] .settings-group,html[data-theme="light"] .settings-head{border-color:rgba(35,42,38,.13)}html[data-theme="light"] .kv .v{color:#303834}
   html[data-theme="light"] .switch-track{background:#d4d0c5;border-color:rgba(35,42,38,.32)}html[data-theme="light"] .switch-track::before{background:#737d78}
+  html[data-theme="light"] .range-control input[type="range"]::-webkit-slider-runnable-track{background:linear-gradient(90deg,rgba(var(--accent-rgb),.82),rgba(35,42,38,.28))}
+  html[data-theme="light"] .range-control input[type="range"]::-moz-range-track{background:rgba(35,42,38,.28)}
   html[data-theme="light"] .range-control input[type="range"]::-webkit-slider-thumb{background:#e9e5da;box-shadow:0 0 0 2px rgba(255,255,255,.25)}html[data-theme="light"] .range-control input[type="range"]::-moz-range-thumb{background:#e9e5da}
   html[data-theme="light"] .creator-easter-egg{border-color:rgba(35,42,38,.13);color:#59635e}
 
@@ -311,7 +317,7 @@
 
 <section class="info-wrap" aria-live="polite">
   <article id="infoHead" class="panel panel-head">
-    <div class="logo-slot"><img id="logoImg" alt=""><div id="logoFallback" class="logo-fallback"></div></div>
+    <div class="logo-slot"><img id="logoImg" alt=""></div>
     <div>
       <div id="districtCode" class="district-code">DISTRICT 00</div>
       <div id="districtName" class="district-name">PLACEHOLDER</div>
@@ -659,7 +665,7 @@
 
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText'),noteAuthor=document.getElementById('noteAuthor');
-  const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback'),logoSlot=document.querySelector('.logo-slot');
+  const logoImg=document.getElementById('logoImg'),logoSlot=document.querySelector('.logo-slot');
   let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
   const ambientA=document.getElementById('ambientA');
 
@@ -710,8 +716,8 @@
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
     codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
-    logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.alt=`${d.name} 로고`;
-    logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none';logoFallback.style.display='grid'};logoImg.src=d.logo;
+    logoImg.style.display='none';logoImg.alt=`${d.name} 로고`;
+    logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none'};logoImg.src=d.logo;
     infoBody.classList.remove('show');
     revealPanelSequence(token,codeText,d.name,metaText);
     if(align)rotateToDistrict(id);
