@@ -95,13 +95,11 @@
   .tooltip .t{font-size:10px;color:#dbe2de;margin-top:3px}
 
   .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;min-height:0;pointer-events:none}
-  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease,border-color .3s;pointer-events:none}
+  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity .34s ease,transform .34s cubic-bezier(.22,.7,.25,1),border-color .3s ease,box-shadow .34s ease;pointer-events:none}
   .panel.show{opacity:1;transform:translateY(0);pointer-events:auto;border-color:rgba(var(--accent-rgb),.52);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 24px rgba(var(--accent-rgb),.07),inset 0 0 24px rgba(255,255,255,.018)}
   @keyframes panel-head-reveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
-  @keyframes panel-body-reveal{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
   @keyframes logo-reveal{0%{opacity:0;transform:translateY(4px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
-  .panel-head.head-reveal{animation:panel-head-reveal .28s cubic-bezier(.22,.7,.25,1) both}
-  .panel-body.body-reveal{animation:panel-body-reveal .3s cubic-bezier(.22,.7,.25,1) both}
+  .panel-head.head-reveal{animation:panel-head-reveal .34s cubic-bezier(.22,.7,.25,1) both}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
   .logo-slot.logo-reveal{animation:logo-reveal .28s ease-out both}
@@ -455,12 +453,12 @@
   function revealPanelSequence(token,codeText,nameText,metaText){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
-    const delay=14;
+    const delay=17;
     typePanelText(codeEl,codeText,token,delay,18);
     typePanelText(nameEl,nameText,token,delay,48);
     typePanelText(metaEl,metaText,token,delay,82);
-    const revealAfter=Math.max(codeText.length*delay+18,nameText.length*delay+48,metaText.length*delay+82)+72;
-    const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.remove('body-reveal');void infoBody.offsetWidth;infoBody.classList.add('show','body-reveal')},revealAfter);
+    const revealAfter=Math.max(codeText.length*delay+18,nameText.length*delay+48,metaText.length*delay+82)+96;
+    const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.add('show')},revealAfter);
     panelTimers.push(timer);
   }
   function selectDistrict(id,{align=false}={}){
