@@ -116,10 +116,10 @@
   .panel-body h2{font-size:15px;letter-spacing:.06em;margin:0 0 10px;font-weight:600}
   .panel-body p{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:13px;color:#c5ceca;margin:0 0 18px}
   .archive-quote{margin:4px 0 24px;padding:0 0 0 14px;border-left:2px solid rgba(var(--accent-rgb),.62);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:17px;line-height:1.55;color:#e0e7e3;font-style:italic}
-  .archive-quote cite{display:block;margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:9px;letter-spacing:.12em;color:#76817d;font-style:normal}
   .kv{display:grid;grid-template-columns:92px 1fr;border-top:1px solid rgba(230,236,232,.14);font-size:10px}
   .kv div{padding:9px 0;border-bottom:1px solid rgba(230,236,232,.1)}.kv .k{color:#7d8784}.kv .v{color:#d7deda}
   .notes-quote{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif!important;color:rgba(197,206,202,.54)!important;font-size:12px!important;line-height:1.75;font-style:italic;opacity:.8}
+  .notes-quote cite{display:block;margin-top:7px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:9px;letter-spacing:.12em;color:rgba(118,129,125,.78);font-style:normal}
   .panel-stamp{margin:28px 0 2px;text-align:right;font-size:8px;letter-spacing:.18em;color:#53605c;white-space:normal;overflow-wrap:anywhere}
 
   /* list/search view */
@@ -218,7 +218,7 @@
   </article>
   <article id="infoBody" class="panel panel-body">
     <div class="section-label">ARCHIVE ENTRY</div>
-    <blockquote class="archive-quote"><span id="detailQuote">“구역 대표 인용구 플레이스홀더”</span><cite id="detailQuoteSource">— 출처 플레이스홀더</cite></blockquote>
+    <blockquote class="archive-quote"><span id="detailQuote">“구역 대표 인용구 플레이스홀더”</span></blockquote>
     <h2 id="detailTitle">구역 설명</h2>
     <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
     <div class="kv">
@@ -228,7 +228,7 @@
       <div class="k">대표 산업</div><div id="kvIndustry" class="v">00</div>
     </div>
     <div class="section-label" style="margin-top:22px">NOTES</div>
-    <p id="noteText" class="notes-quote">“소장 또는 대원 기록 인용구 플레이스홀더.”</p>
+    <p class="notes-quote"><span id="noteText">“소장 또는 대원 기록 인용구 플레이스홀더.”</span><cite id="noteAuthor">— 인용자 플레이스홀더</cite></p>
     <div class="panel-stamp">N.O.D. AUXILIARY ARCHIVE // MOCK DATA</div>
   </article>
 </section>
@@ -298,12 +298,12 @@
       name:id===0?'CENTRAL DISTRICT':`DISTRICT ${String(id).padStart(2,'0')}`,
       logo:`assets/logos/district-${String(id).padStart(2,'0')}.png`,
       quote:'구역 대표 인용구 플레이스홀더',
-      quoteSource:'출처 플레이스홀더',
       description:id===0?'0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.':'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.',
       leadership:'00',
       location:'',
       industry:'00',
-      note:'소장 또는 대원 기록 인용구 플레이스홀더.'
+      note:'소장 또는 대원 기록 인용구 플레이스홀더.',
+      noteAuthor:'인용자 플레이스홀더'
     };
   }
   async function loadDistrictData(){
@@ -422,7 +422,7 @@
   });
 
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
-  const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailQuoteSource=document.getElementById('detailQuoteSource'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText');
+  const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText'),noteAuthor=document.getElementById('noteAuthor');
   const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback'),logoSlot=document.querySelector('.logo-slot');
   let selectedId=null,ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
   const ambientA=document.getElementById('ambientA');
@@ -451,6 +451,10 @@
     const text=String(value??'').trim()||fallback;
     return text.startsWith('“')&&text.endsWith('”')?text:`“${text}”`;
   }
+  function attributionText(value,fallback='인용자 플레이스홀더'){
+    const text=String(value??'').trim()||fallback;
+    return text.startsWith('—')?text:`— ${text}`;
+  }
   function revealPanelSequence(token,codeText,nameText,metaText){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
@@ -469,7 +473,7 @@
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
-    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailQuoteSource.textContent=d.quoteSource?`— ${d.quoteSource}`:'— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');infoBody.scrollTop=0;
+    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
     logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.alt=`${d.name} 로고`;
     logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none';logoFallback.style.display='grid'};logoImg.src=d.logo;
     infoBody.classList.remove('show');
