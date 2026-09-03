@@ -78,7 +78,7 @@
   .district.unnamed:not(.selected):hover,.district.unnamed:not(.selected):focus-visible{fill:rgba(var(--district-rgb),.18);stroke-width:1.8;opacity:1}
   .district.unnamed.selected{opacity:1}
   .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
-  .district-label.unnamed{fill:#616966;font-weight:500;opacity:.32;stroke:rgba(3,5,6,.62)}
+  .district-label.unnamed{fill:#8a938f;font-weight:500;opacity:.52;stroke:rgba(3,5,6,.62)}
   .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
   .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1}
@@ -377,11 +377,11 @@
   });
 
   // 360-degree bearing bezel. Three compound paths keep the moving scale light.
-  const compassOuterR=924,compassLabelR=950;
+  const compassOuterR=924,compassLabelR=950,compassZeroOffset=2.5;
   const compassTicks={minor:'',mid:'',major:''},compassLabels=[];
   const cardinalNames={0:'NORTH',90:'EAST',180:'SOUTH',270:'WEST'};
   for(let bearing=0;bearing<360;bearing+=5){
-    const angle=-90+bearing;
+    const angle=-90+compassZeroOffset+bearing; // 000° sits on the boundary between districts 72 and 01
     const kind=bearing%30===0?'major':bearing%10===0?'mid':'minor';
     const inner=kind==='major'?896:kind==='mid'?904:912;
     const a=polar(inner,angle),b=polar(compassOuterR,angle);
@@ -410,7 +410,7 @@
     const lp=polar(labelR,centerAngle);
     const labelIsNamed=Boolean(districtData[i]?.isNamed);
     const labelClass=labelIsNamed?'district-label':'district-label unnamed';
-    const t=svgNode('text',{x:lp.x,y:lp.y,class:labelClass,'fill-opacity':labelIsNamed?'1':'.42',transform:`rotate(${centerAngle+90} ${lp.x} ${lp.y})`});
+    const t=svgNode('text',{x:lp.x,y:lp.y,class:labelClass,'fill-opacity':labelIsNamed?'1':'.74',transform:`rotate(${centerAngle+90} ${lp.x} ${lp.y})`});
     t.textContent=String(i).padStart(2,'0');labelLayer.appendChild(t);
 
     const tp1=polar(852,start),tp2=polar(878,start);
