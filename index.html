@@ -387,16 +387,17 @@
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvRegion=document.getElementById('kvRegion'),kvLogo=document.getElementById('kvLogo');
   const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback');
-  let selectedId=null, ambientToggle=false;
+  let selectedId=null;
   const ambientA=document.getElementById('ambientA'),ambientB=document.getElementById('ambientB');
 
   function setAmbient(rgb,id){
-    const next=ambientToggle?ambientA:ambientB, prev=ambientToggle?ambientB:ambientA; ambientToggle=!ambientToggle;
+    const current=ambientA.classList.contains('on')?ambientA:ambientB;
+    const next=current===ambientA?ambientB:ambientA;
     next.style.background=id===0
       ? 'radial-gradient(circle at 78% 24%, rgba(235,242,238,.025), transparent 52%), #020304'
-      : `radial-gradient(circle at 78% 24%, rgba(${rgb.join(',')},.46) 0%, rgba(${rgb.join(',')},.25) 30%, rgba(${rgb.join(',')},.09) 56%, transparent 77%), linear-gradient(118deg, rgba(${rgb.join(',')},.13), rgba(2,3,4,.94) 66%)`;
-    next.classList.add('on');prev.classList.remove('on');
-    document.body.style.background='#020304';
+      : `radial-gradient(circle at 78% 24%, rgba(${rgb.join(',')},.46) 0%, rgba(${rgb.join(',')},.25) 30%, rgba(${rgb.join(',')},.09) 56%, transparent 77%), linear-gradient(118deg, rgba(${rgb.join(',')},.13), rgba(2,3,4,.94) 66%), #020304`;
+    next.classList.add('on');current.classList.remove('on');
+    document.body.style.backgroundColor=id===0?'#020304':`rgba(${rgb.join(',')},.08)`;
   }
 
   function applyAccent(rgb,id){
