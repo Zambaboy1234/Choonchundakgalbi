@@ -126,7 +126,7 @@
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;position:relative;display:grid;place-items:center;overflow:visible;background:transparent}
   .logo-slot.logo-reveal{animation:logo-reveal calc(.28s * var(--motion-scale)) ease-out both}
-  .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
+  .logo-slot img{width:100%;height:100%;object-fit:contain;display:block;visibility:hidden}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
   .district-name{font-family:"Arial Black",Impact,"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:28px;font-weight:900;letter-spacing:.035em;line-height:1.08;word-break:keep-all;text-rendering:geometricPrecision}
   @keyframes koschei-title-jitter{0%,100%{transform:translate(0,0);opacity:1}24%{transform:translate(.45px,-.25px);opacity:.88}58%{transform:translate(-.4px,.2px);opacity:.96}78%{transform:translate(.2px,.35px);opacity:.84}}
@@ -158,9 +158,13 @@
   .district-list{overflow:auto;padding:10px}
   .list-row{display:grid;width:100%;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border:0;border-bottom:1px solid rgba(230,236,232,.1);background:transparent;color:inherit;text-align:left;cursor:pointer;outline:none;transition:calc(.15s * var(--motion-scale))}
   .list-row:hover,.list-row:focus-visible{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.48);box-shadow:inset 3px 0 0 var(--accent)}
-  .list-row .code{color:var(--accent);letter-spacing:.18em}.list-row .name{font-size:12px}.list-row .region{font-size:9px;color:#727d79;letter-spacing:.14em;text-align:right}
+  .list-row .code{color:var(--accent);letter-spacing:.18em}
+  .list-name-cell{display:flex;align-items:center;gap:11px;min-width:0}
+  .list-logo{width:30px;height:30px;flex:0 0 30px;object-fit:contain;visibility:hidden;opacity:.82}
+  .list-row .name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.list-row .region{font-size:9px;color:#727d79;letter-spacing:.14em;text-align:right}
   .list-row.unavailable{opacity:.56}
   .list-row.unavailable .code,.list-row.unavailable .name,.list-row.unavailable .region{color:#69726f}
+  .list-row.unavailable .list-logo{opacity:.38}
   .list-row.unavailable:hover,.list-row.unavailable:focus-visible{opacity:.86}
   .list-empty{padding:34px;color:#737d79;font-size:11px}
 
@@ -237,7 +241,7 @@
   html[data-theme="light"] .zero-core{stroke:rgba(35,42,38,.34)}html[data-theme="light"] .zero-mark{fill:#222925;filter:none}
   html[data-theme="light"] .panel,html[data-theme="light"] .list-shell,html[data-theme="light"] .simple-card,html[data-theme="light"] .settings-shell{border-color:rgba(35,42,38,.34);background:linear-gradient(180deg,rgba(238,235,225,.96),rgba(224,221,210,.92));box-shadow:0 18px 50px rgba(66,54,38,.14)}
   html[data-theme="light"] #districtSearch,html[data-theme="light"] .segmented,html[data-theme="light"] .settings-reset{background:#ddd9ce;color:#202723;border-color:rgba(35,42,38,.28)}
-  html[data-theme="light"] .logo-slot img{filter:invert(1)}
+  html[data-theme="light"] .logo-slot img,html[data-theme="light"] .list-logo{filter:invert(1)}
   html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
   html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
   html[data-theme="light"].zero-selected .district-code{color:#151b18}
@@ -262,7 +266,7 @@
     .map-stage{width:115vw;height:115vw;max-width:none;max-height:none}
     .info-wrap{left:76px;right:20px;width:auto;top:auto;bottom:28px;height:48vh;grid-template-rows:auto 1fr}
     .panel-head{min-height:96px;grid-template-columns:72px 1fr auto}.logo-slot{width:68px}.district-name{font-size:22px}
-    #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:58px 1fr}.list-row .region{display:none}.list-title{display:none}
+    #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:48px 1fr}.list-row .region{display:none}.list-title{display:none}.list-name-cell{gap:8px}.list-logo{width:26px;height:26px;flex-basis:26px}
     .simple-view{padding:90px 20px 30px 76px}.panel,.list-shell{backdrop-filter:none;-webkit-backdrop-filter:none}
     .settings-head{padding:18px;align-items:flex-start}.settings-status{display:none}.settings-body{padding:8px 18px 0}.setting-row{grid-template-columns:1fr;gap:12px;padding:16px 0}.switch{justify-self:start}.creator-easter-egg{margin-top:28vh}
   }
@@ -669,8 +673,21 @@
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText'),noteAuthor=document.getElementById('noteAuthor');
   const logoImg=document.getElementById('logoImg'),logoSlot=document.querySelector('.logo-slot');
+  const FALLBACK_LOGO_PATH='assets/logos/districtnull.png';
   let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
   const ambientA=document.getElementById('ambientA');
+
+  function loadLogoImage(img,path,token=null){
+    const isCurrent=()=>token===null?img.isConnected:token===panelIntroToken;
+    img.dataset.fallbackLogo='false';img.style.display='block';img.style.visibility='hidden';
+    img.onload=()=>{if(!isCurrent())return;img.style.visibility='visible'};
+    img.onerror=()=>{
+      if(!isCurrent())return;
+      if(img.dataset.fallbackLogo==='true'){img.style.visibility='hidden';return}
+      img.dataset.fallbackLogo='true';img.src=FALLBACK_LOGO_PATH;
+    };
+    img.src=String(path||'').trim()||FALLBACK_LOGO_PATH;
+  }
 
   function setAmbient(rgb,id){
     const target=id===0?[0,0,0]:rgb.slice(); const start=ambientRGB.slice(); const token=++ambientFrame; const t0=performance.now();
@@ -739,8 +756,7 @@
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
     codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
-    logoImg.style.display='none';logoImg.alt=`${d.name} 로고`;
-    logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none'};logoImg.src=d.logo;
+    logoImg.alt=`${d.name} 로고`;loadLogoImage(logoImg,d.logo,token);
     infoBody.classList.remove('show');
     revealPanelSequence(token,codeText,d.name,metaText,id);
     if(align)rotateToDistrict(id);
@@ -807,7 +823,15 @@
     const rows=districtData.filter(d=>!tokens.length || tokens.every(token=>districtSearchText(d).includes(token)));
     visibleDistrictIds=rows.map(d=>d.id);
     if(!rows.length){list.innerHTML='<div class="list-empty">NO MATCHING DISTRICT</div>';return}
-    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';row.classList.toggle('unavailable',!d.isNamed);const code=document.createElement('span');code.className='code';code.textContent=String(d.id).padStart(2,'0');const name=document.createElement('span');name.className='name';name.textContent=d.name;const region=document.createElement('span');region.className='region';region.textContent=regionFor(d.id);row.append(code,name,region);row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
+    rows.forEach(d=>{
+      const row=document.createElement('button');row.type='button';row.className='list-row';row.classList.toggle('unavailable',!d.isNamed);
+      const code=document.createElement('span');code.className='code';code.textContent=String(d.id).padStart(2,'0');
+      const nameCell=document.createElement('span');nameCell.className='list-name-cell';
+      const logo=document.createElement('img');logo.className='list-logo';logo.alt='';logo.loading='lazy';logo.decoding='async';
+      const name=document.createElement('span');name.className='name';name.textContent=d.name;nameCell.append(logo,name);
+      const region=document.createElement('span');region.className='region';region.textContent=regionFor(d.id);
+      row.append(code,nameCell,region);row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row);loadLogoImage(logo,d.logo);
+    })
   }
   search.addEventListener('input',()=>renderList(search.value));
   search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
