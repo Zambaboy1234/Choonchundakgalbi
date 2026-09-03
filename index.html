@@ -17,9 +17,9 @@
     --menu-w:76px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#edf2ef;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
-  button,input{font:inherit}
-  body{position:relative;transition:background-color .4s ease}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020304;color:#edf2ef;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  button,input{font:inherit;-webkit-tap-highlight-color:transparent}
+  body{position:relative;isolation:isolate;background:#020304;transition:background-color .5s ease}
 
   /* analog/camera texture */
   body::before{
@@ -27,16 +27,21 @@
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 4px),
       linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%);
-    mix-blend-mode:screen;
+    mix-blend-mode:screen;animation:screenFlicker 7s steps(1,end) infinite;
   }
   body::after{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:49;
     box-shadow:inset 0 0 120px #000, inset 0 0 18px #000;
   }
 
-  .ambient{position:fixed;inset:0;z-index:-2;opacity:0;transition:opacity .8s ease;background:transparent}
+  .ambient{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.22,.61,.36,1);background:#020304;will-change:opacity}
   .ambient.on{opacity:1}
-  .grid{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.23;background-image:linear-gradient(rgba(215,222,217,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.12) 1px,transparent 1px);background-size:32px 32px}
+  .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(215,222,217,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.12) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(105deg,rgba(0,0,0,.88),rgba(0,0,0,.18) 72%)}
+  .noise-layer{position:fixed;inset:-12%;z-index:48;pointer-events:none;opacity:.055;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");animation:grainShift .24s steps(2,end) infinite}
+  .scan-sweep{position:fixed;left:0;right:0;top:-18vh;height:16vh;z-index:48;pointer-events:none;opacity:.12;background:linear-gradient(180deg,transparent,rgba(var(--accent-rgb),.08),rgba(255,255,255,.16),transparent);mix-blend-mode:screen;animation:scanSweep 8.5s linear infinite}
+  @keyframes grainShift{0%{transform:translate3d(-2%,1%,0)}25%{transform:translate3d(3%,-2%,0)}50%{transform:translate3d(-1%,3%,0)}75%{transform:translate3d(2%,2%,0)}100%{transform:translate3d(-2%,1%,0)}}
+  @keyframes scanSweep{to{transform:translateY(136vh)}}
+  @keyframes screenFlicker{0%,96%,100%{opacity:.16}97%{opacity:.11}98%{opacity:.19}}
 
   .frame{position:fixed;inset:18px;z-index:40;pointer-events:none;border:1px solid rgba(225,235,230,.4)}
   .corner{position:absolute;width:54px;height:54px;border-color:#eef3ef}
@@ -62,19 +67,31 @@
   .rec{color:#d8dedb}.rec::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;box-shadow:0 0 10px rgba(var(--accent-rgb),.8)}
 
   #mapView{position:absolute;inset:0;overflow:hidden;z-index:2}
-  .map-stage{position:absolute;right:0;bottom:0;width:min(78vw,94vh,1160px);height:min(78vw,94vh,1160px);touch-action:none;user-select:none;cursor:grab;filter:drop-shadow(0 0 26px rgba(var(--accent-rgb),.08))}
+  .map-stage{position:absolute;right:0;bottom:0;width:min(82vw,98vh,1240px);height:min(82vw,98vh,1240px);touch-action:none;user-select:none;cursor:grab;isolation:isolate;filter:drop-shadow(1px 0 rgba(255,68,72,.18)) drop-shadow(-1px 0 rgba(50,142,255,.2)) drop-shadow(0 0 30px rgba(var(--accent-rgb),.1))}
   .map-stage.dragging{cursor:grabbing}
-  #amberMap{width:100%;height:100%;overflow:visible}
-  .district{fill:rgba(238,243,239,.035);stroke:rgba(230,236,232,.64);stroke-width:1.05;vector-effect:non-scaling-stroke;transition:fill .16s ease,stroke .16s ease,opacity .16s ease}
-  .district:hover{fill:rgba(var(--accent-rgb),.16);stroke:var(--accent)}
-  .district.selected{fill:rgba(var(--accent-rgb),.22);stroke:var(--accent);stroke-width:2}
-  .district-label{fill:#e4ebe7;font-size:13px;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.82}
-  .ring{fill:none;stroke:rgba(230,236,232,.68);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
+  #amberMap{width:100%;height:100%;overflow:visible;shape-rendering:geometricPrecision;-webkit-tap-highlight-color:transparent}
+  #amberMap *{-webkit-tap-highlight-color:transparent}
+  .urban-ground{fill:#0a0d0e}
+  .urban-road{fill:none;stroke:rgba(226,235,230,.17);stroke-width:4.5}
+  .urban-road.minor{stroke:rgba(226,235,230,.09);stroke-width:1.2}
+  .urban-block{fill:rgba(223,233,227,.105);stroke:rgba(223,233,227,.09);stroke-width:.7}
+  .district-surface{fill:url(#urbanPattern);stroke:none;pointer-events:none;opacity:.9}
+  .district{fill:rgba(238,243,239,.025);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s ease,stroke .2s ease,stroke-width .2s ease,filter .2s ease}
+  .district:focus{outline:none}
+  .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.2);stroke:#f4fbf7;stroke-width:1.8;filter:drop-shadow(1.3px 0 rgba(255,70,78,.58)) drop-shadow(-1.3px 0 rgba(54,158,255,.6)) drop-shadow(0 0 7px var(--accent))}
+  .district.selected{fill:rgba(var(--accent-rgb),.28);stroke:#fff;stroke-width:2.35;filter:drop-shadow(1.6px 0 rgba(255,70,78,.72)) drop-shadow(-1.6px 0 rgba(54,158,255,.72)) drop-shadow(0 0 4px #fff) drop-shadow(0 0 13px var(--accent))}
+  .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;filter:drop-shadow(1px 0 rgba(255,55,65,.24)) drop-shadow(-1px 0 rgba(50,145,255,.24))}
+  .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
+  .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1;filter:drop-shadow(0 0 4px rgba(235,242,238,.16))}
   .tick{stroke:rgba(230,236,232,.45);stroke-width:.8;vector-effect:non-scaling-stroke}
-  .zero-zone{fill:#030405;stroke:#e6ece8;stroke-width:1.7;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .16s,stroke .16s}
-  .zero-zone:hover,.zero-zone.selected{fill:rgba(255,255,255,.08);stroke:#fff}
-  .zero-mark{fill:#eaf0ec;font-size:16px;font-weight:700;pointer-events:none}
+  .zero-base{fill:url(#centralPattern);stroke:none;pointer-events:none}
+  .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,filter .2s}
+  .zero-zone:focus{outline:none}
+  .zero-zone:hover,.zero-zone:focus-visible,.zero-zone.selected{fill:rgba(255,255,255,.11);stroke:#fff;filter:drop-shadow(1.5px 0 rgba(255,70,78,.6)) drop-shadow(-1.5px 0 rgba(54,158,255,.64)) drop-shadow(0 0 12px rgba(235,242,238,.8))}
+  .zero-zone.selected{stroke-width:2.7}
+  .zero-core{fill:none;stroke:rgba(235,242,238,.42);stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+  .zero-mark{fill:#f5faf7;font-size:22px;font-weight:800;letter-spacing:.12em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;filter:drop-shadow(0 0 7px rgba(235,242,238,.45))}
   .map-caption{position:absolute;right:34px;bottom:34px;z-index:5;text-align:right;pointer-events:none}
   .map-caption .north{font-size:10px;letter-spacing:.22em;color:#8d9693}
   .map-caption .hint{font-size:9px;letter-spacing:.12em;color:#65706d;margin-top:5px}
@@ -86,7 +103,7 @@
 
   .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;pointer-events:none}
   .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.94),rgba(5,7,8,.86));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(10px);opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease,border-color .3s;pointer-events:none}
-  .panel.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  .panel.show{opacity:1;transform:translateY(0);pointer-events:auto;border-color:rgba(var(--accent-rgb),.52);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 24px rgba(var(--accent-rgb),.07),inset 0 0 24px rgba(255,255,255,.018)}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
@@ -115,8 +132,8 @@
   #districtSearch{width:100%;height:42px;background:#050708;border:1px solid rgba(230,236,232,.28);color:#edf2ef;padding:0 14px 0 92px;outline:none}
   #districtSearch:focus{border-color:var(--accent);box-shadow:0 0 18px rgba(var(--accent-rgb),.12)}
   .district-list{overflow:auto;padding:10px}
-  .list-row{display:grid;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border-bottom:1px solid rgba(230,236,232,.1);cursor:pointer;transition:.15s}
-  .list-row:hover{background:rgba(var(--accent-rgb),.09);border-color:rgba(var(--accent-rgb),.35)}
+  .list-row{display:grid;width:100%;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border:0;border-bottom:1px solid rgba(230,236,232,.1);background:transparent;color:inherit;text-align:left;cursor:pointer;outline:none;transition:.15s}
+  .list-row:hover,.list-row:focus-visible{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.48);box-shadow:inset 3px 0 0 var(--accent)}
   .list-row .code{color:var(--accent);letter-spacing:.18em}.list-row .name{font-size:12px}.list-row .region{font-size:9px;color:#727d79;letter-spacing:.14em;text-align:right}
   .list-empty{padding:34px;color:#737d79;font-size:11px}
 
@@ -135,12 +152,18 @@
     #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:58px 1fr}.list-row .region{display:none}.list-title{display:none}
     .simple-view{padding:90px 20px 30px 76px}
   }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+    .ambient,.district,.zero-zone{transition:none!important}
+  }
 </style>
 </head>
 <body>
 <div id="ambientA" class="ambient on"></div>
 <div id="ambientB" class="ambient"></div>
 <div class="grid"></div>
+<div class="noise-layer" aria-hidden="true"></div>
+<div class="scan-sweep" aria-hidden="true"></div>
 <div class="frame"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
 
 <nav class="side-menu" aria-label="보기 방식">
@@ -162,7 +185,7 @@
 <header class="brand">
   <div class="small">EXTERNAL METROPOLIS / ARCHIVE NODE</div>
   <div class="big">EMBER</div>
-  <div class="sub">DISTRICT CARTOGRAPHIC TERMINAL // REV. 0.3</div>
+  <div class="sub">DISTRICT CARTOGRAPHIC TERMINAL // REV. 0.4</div>
 </header>
 
 <div class="statusbar"><span class="rec">LIVE FEED</span><span>CAM-72 / GEO</span><span id="angleReadout">ROT 000.0°</span></div>
@@ -172,6 +195,22 @@
     <svg id="amberMap" viewBox="0 0 1000 1000" role="img" aria-label="앰버 72개 구역 및 중앙 0구역 지도">
       <defs>
         <filter id="softGlow"><feGaussianBlur stdDeviation="1.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <pattern id="urbanPattern" width="74" height="74" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)">
+          <rect class="urban-ground" width="74" height="74"/>
+          <path class="urban-road" d="M-8 19 H82 M18 -8 V82"/>
+          <path class="urban-road minor" d="M-8 53 H82 M50 -8 V82 M-10 70 L70 -10 M12 84 L84 12"/>
+          <rect class="urban-block" x="23" y="24" width="20" height="22"/>
+          <rect class="urban-block" x="54" y="24" width="13" height="24"/>
+          <rect class="urban-block" x="23" y="57" width="19" height="11"/>
+          <rect class="urban-block" x="53" y="56" width="15" height="12"/>
+          <rect class="urban-block" x="-3" y="25" width="14" height="20"/>
+        </pattern>
+        <pattern id="centralPattern" width="46" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="46" height="46" fill="#020304"/>
+          <path d="M0 0H46V46H0Z M0 23H46 M23 0V46" fill="none" stroke="rgba(235,242,238,.12)" stroke-width="1"/>
+          <rect x="5" y="5" width="13" height="13" fill="rgba(235,242,238,.08)"/>
+          <rect x="28" y="28" width="13" height="13" fill="rgba(235,242,238,.08)"/>
+        </pattern>
       </defs>
       <g id="rotor"></g>
       <g id="zeroGroup"></g>
@@ -226,8 +265,8 @@
 (() => {
   const SVG_NS='http://www.w3.org/2000/svg';
   const center={x:1000,y:1000};
-  const innerR=168, outerR=844;
-  const labelR=794;
+  const innerR=222, outerR=842, zeroR=194;
+  const labelR=792;
   const rotor=document.getElementById('rotor');
   const zeroGroup=document.getElementById('zeroGroup');
   const stage=document.getElementById('mapStage');
@@ -235,6 +274,17 @@
   const tipNo=document.getElementById('tipNo');
   const tipName=document.getElementById('tipName');
   const angleReadout=document.getElementById('angleReadout');
+
+  function svgNode(tag,attrs={}){
+    const node=document.createElementNS(SVG_NS,tag);
+    Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,value));
+    return node;
+  }
+  const cityLayer=svgNode('g',{'aria-hidden':'true'});
+  const districtLayer=svgNode('g');
+  const ornamentLayer=svgNode('g',{'aria-hidden':'true'});
+  const labelLayer=svgNode('g',{'aria-hidden':'true'});
+  rotor.append(cityLayer,districtLayer,ornamentLayer,labelLayer);
 
   const districtData=[...Array(73)].map((_,i)=>({
     id:i,
@@ -280,38 +330,59 @@
     return `M ${p1.x} ${p1.y} A ${r2} ${r2} 0 ${large} 1 ${p2.x} ${p2.y} L ${p3.x} ${p3.y} A ${r1} ${r1} 0 ${large} 0 ${p4.x} ${p4.y} Z`;
   }
 
-  // decorative rings
-  [innerR,230,520,outerR,886].forEach((r,idx)=>{
-    const c=document.createElementNS(SVG_NS,'circle'); c.setAttribute('cx',center.x);c.setAttribute('cy',center.y);c.setAttribute('r',r);c.setAttribute('class',idx===1||idx===2?'ring thin':'ring');rotor.appendChild(c);
+  // smooth circular perimeter and survey rings
+  [[innerR,'ring rim'],[254,'ring thin'],[520,'ring thin'],[outerR,'ring rim'],[872,'ring thin'],[892,'ring rim']].forEach(([r,cls])=>{
+    ornamentLayer.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r,class:cls}));
   });
 
   for(let i=1;i<=72;i++){
     const centerAngle=-90-(i-1)*5;
     const start=centerAngle-2.5,end=centerAngle+2.5;
-    const p=document.createElementNS(SVG_NS,'path');
-    p.setAttribute('d',sectorPath(innerR,outerR,start,end));
-    p.setAttribute('class','district');p.dataset.id=i;p.setAttribute('tabindex','0');p.setAttribute('aria-label',`${i}구역`);
-    rotor.appendChild(p);
+    const d=sectorPath(innerR,outerR,start,end);
+    cityLayer.appendChild(svgNode('path',{d,class:'district-surface'}));
+    const p=svgNode('path',{d,class:'district',tabindex:'0',role:'button','aria-label':`${i}구역`,'aria-pressed':'false'});
+    p.dataset.id=i;
+    districtLayer.appendChild(p);
 
     const lp=polar(labelR,centerAngle);
-    const t=document.createElementNS(SVG_NS,'text');t.setAttribute('x',lp.x);t.setAttribute('y',lp.y);t.setAttribute('class','district-label');t.setAttribute('transform',`rotate(${centerAngle+90} ${lp.x} ${lp.y})`);t.textContent=String(i).padStart(2,'0');rotor.appendChild(t);
+    const t=svgNode('text',{x:lp.x,y:lp.y,class:'district-label',transform:`rotate(${centerAngle+90} ${lp.x} ${lp.y})`});
+    t.textContent=String(i).padStart(2,'0');labelLayer.appendChild(t);
 
     const tp1=polar(852,start),tp2=polar(878,start);
-    const tick=document.createElementNS(SVG_NS,'line');tick.setAttribute('x1',tp1.x);tick.setAttribute('y1',tp1.y);tick.setAttribute('x2',tp2.x);tick.setAttribute('y2',tp2.y);tick.setAttribute('class','tick');rotor.appendChild(tick);
+    ornamentLayer.appendChild(svgNode('line',{x1:tp1.x,y1:tp1.y,x2:tp2.x,y2:tp2.y,class:'tick'}));
   }
 
-  const z=document.createElementNS(SVG_NS,'circle');z.setAttribute('cx',center.x);z.setAttribute('cy',center.y);z.setAttribute('r',134);z.setAttribute('class','zero-zone');z.dataset.id='0';z.setAttribute('tabindex','0');z.setAttribute('aria-label','0구역');zeroGroup.appendChild(z);
-  const zt=document.createElementNS(SVG_NS,'text');zt.setAttribute('x',952);zt.setAttribute('y',952);zt.setAttribute('class','zero-mark');zt.textContent='00';zeroGroup.appendChild(zt);
-  const zi=document.createElementNS(SVG_NS,'circle');zi.setAttribute('cx',center.x);zi.setAttribute('cy',center.y);zi.setAttribute('r',82);zi.setAttribute('class','ring thin');zeroGroup.appendChild(zi);
+  zeroGroup.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r:zeroR,class:'zero-base'}));
+  const z=svgNode('circle',{cx:center.x,cy:center.y,r:zeroR,class:'zero-zone',tabindex:'0',role:'button','aria-label':'0구역','aria-pressed':'false'});
+  z.dataset.id='0';zeroGroup.appendChild(z);
+  [68,118,158].forEach(r=>zeroGroup.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r,class:'zero-core'})));
+  const zt=svgNode('text',{x:906,y:906,class:'zero-mark'});zt.textContent='00';zeroGroup.appendChild(zt);
 
-  let rotation=0, dragging=false, moved=false, lastPointerAngle=0;
+  let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0;
   function pointerAngle(ev){const r=stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
   function applyRotation(){rotor.setAttribute('transform',`rotate(${rotation} ${center.x} ${center.y})`);angleReadout.textContent=`ROT ${(((rotation%360)+360)%360).toFixed(1).padStart(5,'0')}°`}
-  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;dragging=true;moved=false;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
+  function stopRotationAnimation(){if(rotationFrame){cancelAnimationFrame(rotationFrame);rotationFrame=0}}
+  function rotateToDistrict(id){
+    if(id===0)return;
+    stopRotationAnimation();
+    const desired=-45+(id-1)*5; // selected sector settles at the middle of the visible quarter
+    const delta=((desired-rotation+540)%360)-180;
+    const start=rotation,target=rotation+delta,startTime=performance.now(),duration=720;
+    const step=now=>{
+      const t=Math.min(1,(now-startTime)/duration);
+      const eased=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+      rotation=start+delta*eased;applyRotation();
+      if(t<1)rotationFrame=requestAnimationFrame(step);else{rotation=target;rotationFrame=0;applyRotation()}
+    };
+    rotationFrame=requestAnimationFrame(step);
+  }
+  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;stopRotationAnimation();dragging=true;moved=false;dragStartX=e.clientX;dragStartY=e.clientY;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
   stage.addEventListener('pointermove',e=>{
     if(!dragging)return;
     const a=pointerAngle(e);let d=a-lastPointerAngle;if(d>180)d-=360;if(d<-180)d+=360;
-    if(Math.abs(d)>.03){rotation+=d;applyRotation();lastPointerAngle=a;moved=true}
+    if(Math.hypot(e.clientX-dragStartX,e.clientY-dragStartY)>5)moved=true;
+    if(moved&&Math.abs(d)>.03){rotation+=d;applyRotation()}
+    lastPointerAngle=a;
   });
   function endDrag(e){if(!dragging)return;dragging=false;stage.classList.remove('dragging');try{stage.releasePointerCapture(e.pointerId)}catch(_){}}
   stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);
@@ -323,7 +394,16 @@
     const id=Number(target.dataset.id);tipNo.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;tipName.textContent=districtData[id].name;tip.style.left=e.clientX+'px';tip.style.top=e.clientY+'px';tip.classList.add('on')
   });
   stage.addEventListener('pointerleave',()=>tip.classList.remove('on'));
-  stage.addEventListener('click',e=>{if(moved){moved=false;return}const target=interactiveTarget(e.target);if(target)selectDistrict(Number(target.dataset.id))});
+  stage.addEventListener('click',e=>{
+    if(moved){moved=false;return}
+    const target=interactiveTarget(e.target);if(!target)return;
+    selectDistrict(Number(target.dataset.id));
+    if(e.detail>0)target.blur?.();
+  });
+  stage.addEventListener('keydown',e=>{
+    const target=interactiveTarget(e.target);if(!target||!['Enter',' '].includes(e.key))return;
+    e.preventDefault();selectDistrict(Number(target.dataset.id));
+  });
 
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvRegion=document.getElementById('kvRegion'),kvLogo=document.getElementById('kvLogo');
@@ -333,9 +413,11 @@
 
   function setAmbient(rgb,id){
     const next=ambientToggle?ambientA:ambientB, prev=ambientToggle?ambientB:ambientA; ambientToggle=!ambientToggle;
-    next.style.background=id===0?'transparent':`radial-gradient(circle at 72% 28%, rgba(${rgb.join(',')},.30), rgba(${rgb.join(',')},.10) 34%, transparent 72%)`;
+    next.style.background=id===0
+      ? 'radial-gradient(circle at 78% 24%, rgba(235,242,238,.025), transparent 52%), #020304'
+      : `radial-gradient(circle at 78% 24%, rgba(${rgb.join(',')},.46) 0%, rgba(${rgb.join(',')},.25) 30%, rgba(${rgb.join(',')},.09) 56%, transparent 77%), linear-gradient(118deg, rgba(${rgb.join(',')},.13), rgba(2,3,4,.94) 66%)`;
     next.classList.add('on');prev.classList.remove('on');
-    if(id===0) document.body.style.background='#020304'; else document.body.style.background='#050607';
+    document.body.style.background='#020304';
   }
 
   function applyAccent(rgb,id){
@@ -345,38 +427,44 @@
     setAmbient(rgb,id);
   }
 
-  function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>el.classList.remove('selected'))}
-  function selectDistrict(id){
+  function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')})}
+  function selectDistrict(id,{align=false}={}){
     selectedId=id;clearSelectionClasses();
-    const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');
+    const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     codeEl.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;nameEl.textContent=d.name;metaEl.textContent=`${region} // PLACEHOLDER`;detailTitle.textContent=`${String(id).padStart(2,'0')} 구역 정보`;detailText.textContent=d.description;kvRegion.textContent=region;kvLogo.textContent=d.logo;
     logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.src=d.logo;logoImg.alt=`${d.name} 로고`;
     logoImg.onload=()=>{logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{logoImg.style.display='none';logoFallback.style.display='grid'};
     infoHead.classList.add('show');infoBody.classList.add('show');
+    if(align)rotateToDistrict(id);
   }
   document.getElementById('closeInfo').addEventListener('click',()=>{selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
 
   // views
   const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),legend:document.getElementById('legendView'),system:document.getElementById('systemView')};
-  document.querySelectorAll('.menu-btn').forEach(btn=>btn.addEventListener('click',()=>{
-    const v=btn.dataset.view;document.querySelectorAll('.menu-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  function switchView(v){
+    document.querySelectorAll('.menu-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
     Object.entries(views).forEach(([k,el])=>{if(k==='map') el.style.display=v==='map'?'block':'none'; else el.classList.toggle('active',k===v)});
     document.querySelector('.info-wrap').style.display=v==='map'?'grid':'none';
     if(v==='list') document.getElementById('districtSearch').focus();
-  }));
+  }
+  document.querySelectorAll('.menu-btn').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
 
   const list=document.getElementById('districtList'),search=document.getElementById('districtSearch');
+  let visibleDistrictIds=[];
   function renderList(q=''){
     const query=q.trim().toLowerCase();list.innerHTML='';
     const rows=districtData.filter(d=>!query || String(d.id).padStart(2,'0').includes(query) || d.name.toLowerCase().includes(query));
+    visibleDistrictIds=rows.map(d=>d.id);
     if(!rows.length){list.innerHTML='<div class="list-empty">NO MATCHING DISTRICT</div>';return}
-    rows.forEach(d=>{const row=document.createElement('div');row.className='list-row';row.innerHTML=`<div class="code">${String(d.id).padStart(2,'0')}</div><div class="name">${d.name}</div><div class="region">${regionFor(d.id)}</div>`;row.addEventListener('click',()=>{selectDistrict(d.id);document.querySelector('.menu-btn[data-view="map"]').click()});list.appendChild(row)})
+    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';row.innerHTML=`<span class="code">${String(d.id).padStart(2,'0')}</span><span class="name">${d.name}</span><span class="region">${regionFor(d.id)}</span>`;row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
   }
-  search.addEventListener('input',()=>renderList(search.value));renderList();
+  search.addEventListener('input',()=>renderList(search.value));
+  search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
+  renderList();
 
   // initial neutral state
-  ambientA.style.background='transparent';
+  ambientA.style.background='radial-gradient(circle at 78% 24%, rgba(235,242,238,.018), transparent 52%), #020304';
   applyRotation();
 })();
 </script>
