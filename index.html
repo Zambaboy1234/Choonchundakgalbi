@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>EMBER // DISTRICT TERMINAL</title>
+<script>try{const savedTheme=JSON.parse(localStorage.getItem('ember-terminal-settings-v1')||'null')?.theme;if(savedTheme==='light')document.documentElement.dataset.theme='light'}catch(_){}</script>
 <style>
   :root{
     --bg:#050607;
@@ -14,17 +15,25 @@
     --accent:#b56b35;
     --accent-rgb:181,107,53;
     --ambient-r:0;--ambient-g:0;--ambient-b:0;
+    --motion-scale:1;
+    --scanline-opacity:.16;
+    --noise-opacity:.02;
+    --grid-opacity:.2;
+    --zero-pattern-bg:#020304;
+    --zero-pattern-line:rgba(235,242,238,.12);
+    --zero-pattern-block:rgba(235,242,238,.08);
     --panel-w:min(34vw,520px);
     --menu-w:76px;
+    color-scheme:dark;
   }
   *{box-sizing:border-box}
   html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020304;color:#edf2ef;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
   button,input{font:inherit;-webkit-tap-highlight-color:transparent}
-  body{position:relative;isolation:isolate;background:#020304;transition:background-color .5s ease}
+  body{position:relative;isolation:isolate;background:#020304;transition:background-color calc(.5s * var(--motion-scale)) ease}
 
   /* analog/camera texture */
   body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.16;
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:var(--scanline-opacity);
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 4px),
       linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%);
@@ -35,10 +44,12 @@
     box-shadow:inset 0 0 120px #000, inset 0 0 18px #000;
   }
 
-  .ambient{position:fixed;inset:0;z-index:0;opacity:1;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:background}
+  .ambient{position:fixed;inset:0;z-index:0;opacity:1;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:background;transition:opacity calc(.28s * var(--motion-scale)) ease}
   .ambient.on{opacity:1}
-  .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.2;background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px}
-  .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:.02;background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
+  .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:var(--grid-opacity);background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px;transition:opacity calc(.28s * var(--motion-scale)) ease}
+  .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:var(--noise-opacity);background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
+  html.effects-off .ambient,html.effects-off .grid{opacity:0}
+  html.compass-off #compassRotor{display:none}
 
   .frame{position:fixed;inset:18px;z-index:40;pointer-events:none;border:1px solid rgba(225,235,230,.4)}
   .corner{position:absolute;width:54px;height:54px;border-color:#eef3ef}
@@ -48,7 +59,7 @@
   .corner.br{right:-1px;bottom:-1px;border-right:4px solid;border-bottom:4px solid}
 
   .side-menu{position:fixed;left:18px;top:18px;bottom:18px;width:var(--menu-w);z-index:30;border-right:1px solid rgba(220,230,224,.34);display:flex;flex-direction:column;align-items:center;padding:68px 10px 14px;gap:12px;background:linear-gradient(90deg,rgba(3,5,6,.74),rgba(3,5,6,.12))}
-  .menu-btn{width:50px;height:50px;border:1px solid rgba(230,236,232,.38);background:#07090acc;color:#dce4df;display:grid;place-items:center;cursor:pointer;position:relative;transition:.18s ease;outline:none}
+  .menu-btn{width:50px;height:50px;border:1px solid rgba(230,236,232,.38);background:#07090acc;color:#dce4df;display:grid;place-items:center;cursor:pointer;position:relative;transition:calc(.18s * var(--motion-scale)) ease;outline:none}
   .menu-btn svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.6}
   .menu-btn:hover,.menu-btn.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px rgba(var(--accent-rgb),.2)}
   .menu-btn span{position:absolute;left:60px;white-space:nowrap;background:#050708ee;border:1px solid rgba(230,236,232,.28);padding:5px 8px;font-size:10px;letter-spacing:.12em;opacity:0;transform:translateX(-4px);pointer-events:none;transition:.15s}
@@ -70,7 +81,7 @@
   #rotor,#compassRotor{will-change:transform}
   #compassRotor{pointer-events:none}
   #amberMap *{-webkit-tap-highlight-color:transparent}
-  .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease,opacity .16s ease}
+  .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill calc(.16s * var(--motion-scale)) ease,stroke calc(.16s * var(--motion-scale)) ease,stroke-width calc(.16s * var(--motion-scale)) ease,opacity calc(.16s * var(--motion-scale)) ease}
   .district.unnamed{fill:rgba(0,0,0,.72);stroke:rgba(150,162,156,.52);opacity:.48}
   .district:focus{outline:none}
   .district:hover,.district:focus-visible{fill:rgba(var(--district-rgb),.16);stroke:rgba(238,246,241,.92);stroke-width:1.35}
@@ -91,7 +102,7 @@
   .compass-label{fill:#89928f;font-size:10px;font-weight:500;letter-spacing:.12em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.38;paint-order:stroke;stroke:rgba(2,3,4,.78);stroke-width:1.4px}
   .compass-label.cardinal{fill:#b6bfba;font-size:11px;font-weight:700;letter-spacing:.16em;opacity:.52}
   .zero-base{fill:url(#centralPattern);stroke:none;pointer-events:none}
-  .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,stroke-width .2s}
+  .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill calc(.2s * var(--motion-scale)),stroke calc(.2s * var(--motion-scale)),stroke-width calc(.2s * var(--motion-scale))}
   .zero-zone:focus{outline:none}
   .zero-zone:hover,.zero-zone:focus-visible{fill:rgba(255,255,255,.09);stroke:#fff;stroke-width:2.25}
   .zero-zone.selected{fill:rgba(255,255,255,.11);stroke:#fff;stroke-width:2.4}
@@ -101,20 +112,20 @@
   .map-caption .north{font-size:10px;letter-spacing:.22em;color:#8d9693}
   .map-caption .hint{font-size:9px;letter-spacing:.12em;color:#65706d;margin-top:5px}
 
-  .tooltip{position:fixed;z-index:45;pointer-events:none;opacity:0;transform:translate(10px,10px);transition:opacity .1s;background:#050708f0;border:1px solid rgba(230,236,232,.4);padding:7px 9px;min-width:118px}
+  .tooltip{position:fixed;z-index:45;pointer-events:none;opacity:0;transform:translate(10px,10px);transition:opacity calc(.1s * var(--motion-scale));background:#050708f0;border:1px solid rgba(230,236,232,.4);padding:7px 9px;min-width:118px}
   .tooltip.on{opacity:1}
   .tooltip .n{font-size:11px;color:var(--accent);letter-spacing:.18em}
   .tooltip .t{font-size:10px;color:#dbe2de;margin-top:3px}
 
   .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;min-height:0;pointer-events:none}
-  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity .34s ease,transform .34s cubic-bezier(.22,.7,.25,1),border-color .3s ease,box-shadow .34s ease;pointer-events:none}
+  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity calc(.34s * var(--motion-scale)) ease,transform calc(.34s * var(--motion-scale)) cubic-bezier(.22,.7,.25,1),border-color calc(.3s * var(--motion-scale)) ease,box-shadow calc(.34s * var(--motion-scale)) ease;pointer-events:none}
   .panel.show{opacity:1;transform:translateY(0);pointer-events:auto;border-color:rgba(var(--accent-rgb),.52);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 24px rgba(var(--accent-rgb),.07),inset 0 0 24px rgba(255,255,255,.018)}
   @keyframes panel-head-reveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
   @keyframes logo-reveal{0%{opacity:0;transform:translateY(4px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
-  .panel-head.head-reveal{animation:panel-head-reveal .34s cubic-bezier(.22,.7,.25,1) both}
+  .panel-head.head-reveal{animation:panel-head-reveal calc(.34s * var(--motion-scale)) cubic-bezier(.22,.7,.25,1) both}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
-  .logo-slot.logo-reveal{animation:logo-reveal .28s ease-out both}
+  .logo-slot.logo-reveal{animation:logo-reveal calc(.28s * var(--motion-scale)) ease-out both}
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
   .logo-fallback{padding:8px;font-size:8px;line-height:1.4;text-align:center;color:#6f7976;word-break:break-all}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
@@ -144,7 +155,7 @@
   #districtSearch{width:100%;height:42px;background:#050708;border:1px solid rgba(230,236,232,.28);color:#edf2ef;padding:0 14px 0 92px;outline:none}
   #districtSearch:focus{border-color:var(--accent);box-shadow:0 0 18px rgba(var(--accent-rgb),.12)}
   .district-list{overflow:auto;padding:10px}
-  .list-row{display:grid;width:100%;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border:0;border-bottom:1px solid rgba(230,236,232,.1);background:transparent;color:inherit;text-align:left;cursor:pointer;outline:none;transition:.15s}
+  .list-row{display:grid;width:100%;grid-template-columns:72px 1fr 150px;gap:14px;align-items:center;min-height:54px;padding:9px 14px;border:0;border-bottom:1px solid rgba(230,236,232,.1);background:transparent;color:inherit;text-align:left;cursor:pointer;outline:none;transition:calc(.15s * var(--motion-scale))}
   .list-row:hover,.list-row:focus-visible{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.48);box-shadow:inset 3px 0 0 var(--accent)}
   .list-row .code{color:var(--accent);letter-spacing:.18em}.list-row .name{font-size:12px}.list-row .region{font-size:9px;color:#727d79;letter-spacing:.14em;text-align:right}
   .list-row.unavailable{opacity:.56}
@@ -157,6 +168,84 @@
   .simple-card{max-width:720px;border:1px solid rgba(230,236,232,.3);background:rgba(6,8,9,.88);padding:24px}
   .simple-card h2{margin:0 0 12px;font-family:Arial Black,Impact,sans-serif;letter-spacing:.08em}.simple-card p{font:13px/1.75 system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;color:#b9c2be}
 
+  /* terminal settings */
+  .settings-view{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-color:rgba(var(--accent-rgb),.4) transparent}
+  .settings-shell{width:min(860px,100%);min-height:calc(100vh + 260px);border:1px solid rgba(230,236,232,.32);background:linear-gradient(180deg,rgba(7,9,10,.95),rgba(4,6,7,.9));box-shadow:0 28px 70px rgba(0,0,0,.24)}
+  .settings-head{min-height:112px;padding:22px 26px;border-bottom:1px solid rgba(230,236,232,.2);display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
+  .settings-eyebrow{font-size:9px;letter-spacing:.24em;color:var(--accent);margin-bottom:7px}
+  .settings-head h2{margin:0;font-family:Arial Black,Impact,sans-serif;font-size:27px;letter-spacing:.08em}
+  .settings-status{font-size:8px;line-height:1.6;letter-spacing:.15em;color:#66716d;text-align:right}
+  .settings-body{padding:10px 26px 0}
+  .settings-group{padding:22px 0 8px;border-bottom:1px solid rgba(230,236,232,.12)}
+  .settings-group h3{margin:0 0 7px;font-size:9px;font-weight:500;letter-spacing:.22em;color:#78827f}
+  .setting-row{min-height:78px;display:grid;grid-template-columns:minmax(220px,1fr) minmax(230px,310px);gap:24px;align-items:center;border-top:1px solid rgba(230,236,232,.085)}
+  .setting-copy strong{display:block;font:600 13px/1.4 system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;color:#dce3df}
+  .setting-copy span{display:block;margin-top:5px;font:10px/1.55 system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;color:#77817e}
+  .segmented{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(230,236,232,.25);padding:3px;background:#040607}
+  .segment-btn{min-height:34px;border:0;background:transparent;color:#737d79;font-size:9px;letter-spacing:.15em;cursor:pointer;outline:none}
+  .segment-btn:hover,.segment-btn:focus-visible{color:#e7ece9}
+  .segment-btn.active{background:rgba(var(--accent-rgb),.18);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.5)}
+  .switch{justify-self:end;position:relative;display:inline-flex;width:54px;height:28px;cursor:pointer}
+  .switch input{position:absolute;opacity:0;width:1px;height:1px}
+  .switch-track{position:absolute;inset:0;border:1px solid rgba(230,236,232,.28);background:#050708;transition:calc(.18s * var(--motion-scale)) ease}
+  .switch-track::before{content:"";position:absolute;left:4px;top:4px;width:18px;height:18px;background:#727c78;transition:calc(.18s * var(--motion-scale)) ease}
+  .switch input:checked+.switch-track{border-color:rgba(var(--accent-rgb),.66);background:rgba(var(--accent-rgb),.12)}
+  .switch input:checked+.switch-track::before{transform:translateX(26px);background:var(--accent)}
+  .switch input:focus-visible+.switch-track{outline:1px solid var(--accent);outline-offset:3px}
+  .range-control{display:grid;grid-template-columns:1fr 54px;gap:13px;align-items:center}
+  .range-control input[type="range"]{width:100%;height:20px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}
+  .range-control input[type="range"]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,rgba(var(--accent-rgb),.75),rgba(230,236,232,.2))}
+  .range-control input[type="range"]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:18px;margin-top:-8px;border:1px solid var(--accent);border-radius:0;background:#0a0d0f;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+  .range-control input[type="range"]::-moz-range-track{height:2px;background:rgba(230,236,232,.2)}
+  .range-control input[type="range"]::-moz-range-progress{height:2px;background:rgba(var(--accent-rgb),.75)}
+  .range-control input[type="range"]::-moz-range-thumb{width:12px;height:18px;border:1px solid var(--accent);border-radius:0;background:#0a0d0f}
+  .range-value{font-size:9px;letter-spacing:.1em;color:#aeb7b3;text-align:right;font-variant-numeric:tabular-nums}
+  .settings-actions{display:flex;justify-content:flex-end;padding:22px 0 4px}
+  .settings-reset{border:1px solid rgba(230,236,232,.24);background:#050708;color:#89938f;padding:10px 14px;font-size:9px;letter-spacing:.14em;cursor:pointer}
+  .settings-reset:hover,.settings-reset:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+  .creator-easter-egg{margin-top:42vh;padding:36px 20px 22px;border-top:1px dashed rgba(230,236,232,.1);display:flex;align-items:center;justify-content:center;gap:10px;color:#727c78;font:italic 9px/1.4 system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;opacity:.42}
+  .creator-easter-egg img{width:34px;height:34px;object-fit:contain;filter:grayscale(1);opacity:.72}
+  .creator-easter-egg img.missing{visibility:hidden}
+
+  /* pale paper-terminal theme */
+  html[data-theme="light"]{--bg:#d7d3c6;--panel:#ece8dedd;--panel-2:#e4e0d4e8;--line:#303733;--muted:#616a66;--zero-pattern-bg:#c9c5b9;--zero-pattern-line:rgba(35,42,38,.16);--zero-pattern-block:rgba(35,42,38,.09);color-scheme:light}
+  html[data-theme="light"],html[data-theme="light"] body{background:#d7d3c6;color:#1d2420}
+  html[data-theme="light"] body::before{background:repeating-linear-gradient(0deg,rgba(25,31,28,.045) 0 1px,transparent 1px 4px),linear-gradient(90deg,transparent 49.8%,rgba(25,31,28,.04) 50%,transparent 50.2%);mix-blend-mode:multiply}
+  html[data-theme="light"] body::after{box-shadow:inset 0 0 110px rgba(58,49,35,.28),inset 0 0 16px rgba(58,49,35,.14)}
+  html[data-theme="light"] .ambient{background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.14) 34%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.04) 58%,transparent 78%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.08),rgba(220,216,204,.84) 68%),#d7d3c6}
+  html[data-theme="light"] .grid{background-image:linear-gradient(rgba(35,42,38,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(35,42,38,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(35,42,38,.2) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(35,42,38,.2) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(35,42,38,.18) 6.5px 7px,transparent 7.5px)}
+  html[data-theme="light"] .noise-layer{background-image:repeating-radial-gradient(circle at 18% 27%,rgba(20,24,22,.17) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(20,24,22,.06) 0 1px,transparent 1px 4px)}
+  html[data-theme="light"] .frame{border-color:rgba(33,40,36,.48)}
+  html[data-theme="light"] .corner{border-color:#252c28}
+  html[data-theme="light"] .side-menu{border-color:rgba(33,40,36,.34);background:linear-gradient(90deg,rgba(225,222,211,.86),rgba(225,222,211,.18))}
+  html[data-theme="light"] .menu-btn{border-color:rgba(33,40,36,.38);background:#e6e2d7d9;color:#313a35}
+  html[data-theme="light"] .menu-btn span{background:#ebe7dcf2;border-color:rgba(33,40,36,.28);color:#252c28}
+  html[data-theme="light"] .brand .big{color:#202723}html[data-theme="light"] .brand .small,html[data-theme="light"] .brand .sub,html[data-theme="light"] .statusbar{color:#59635e}
+  html[data-theme="light"] .rec{color:#303834}
+  html[data-theme="light"] .district{fill:rgba(35,42,38,.025);stroke:rgba(35,42,38,.66)}
+  html[data-theme="light"] .district.unnamed{fill:rgba(35,42,38,.13);stroke:rgba(55,64,59,.48)}
+  html[data-theme="light"] .district:hover,html[data-theme="light"] .district:focus-visible{stroke:#1d2420}
+  html[data-theme="light"] .district.selected{stroke:#111613}
+  html[data-theme="light"] .district-label{fill:#242b27;stroke:rgba(232,229,218,.82)}
+  html[data-theme="light"] .district-label.unnamed{fill:#65706a;stroke:rgba(232,229,218,.65)}
+  html[data-theme="light"] .ring{stroke:rgba(35,42,38,.68)}html[data-theme="light"] .ring.thin{stroke:rgba(35,42,38,.2)}html[data-theme="light"] .ring.rim{stroke:rgba(25,31,28,.82)}
+  html[data-theme="light"] .tick{stroke:rgba(35,42,38,.38)}
+  html[data-theme="light"] .compass-ring{stroke:rgba(35,42,38,.2)}html[data-theme="light"] .compass-ticks.minor{stroke:rgba(35,42,38,.18)}html[data-theme="light"] .compass-ticks.mid{stroke:rgba(35,42,38,.28)}html[data-theme="light"] .compass-ticks.major{stroke:rgba(35,42,38,.4)}
+  html[data-theme="light"] .compass-label{fill:#5e6863;stroke:rgba(232,229,218,.85)}html[data-theme="light"] .compass-label.cardinal{fill:#37403b}
+  html[data-theme="light"] .zero-zone{fill:rgba(232,229,218,.22);stroke:#2b332f}html[data-theme="light"] .zero-zone:hover,html[data-theme="light"] .zero-zone:focus-visible,html[data-theme="light"] .zero-zone.selected{stroke:#121714}
+  html[data-theme="light"] .zero-core{stroke:rgba(35,42,38,.34)}html[data-theme="light"] .zero-mark{fill:#222925;filter:none}
+  html[data-theme="light"] .panel,html[data-theme="light"] .list-shell,html[data-theme="light"] .simple-card,html[data-theme="light"] .settings-shell{border-color:rgba(35,42,38,.34);background:linear-gradient(180deg,rgba(238,235,225,.96),rgba(224,221,210,.92));box-shadow:0 18px 50px rgba(66,54,38,.14)}
+  html[data-theme="light"] .logo-slot,html[data-theme="light"] #districtSearch,html[data-theme="light"] .segmented,html[data-theme="light"] .settings-reset{background:#ddd9ce;color:#202723;border-color:rgba(35,42,38,.28)}
+  html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
+  html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
+  html[data-theme="light"] .panel-body p,html[data-theme="light"] .archive-quote,html[data-theme="light"] .setting-copy strong,html[data-theme="light"] .simple-card p{color:#303834}
+  html[data-theme="light"] .setting-copy span,html[data-theme="light"] .settings-group h3,html[data-theme="light"] .settings-status,html[data-theme="light"] .range-value,html[data-theme="light"] .district-meta,html[data-theme="light"] .logo-fallback{color:#5d6762}
+  html[data-theme="light"] .notes-quote{color:rgba(48,56,52,.62)!important}html[data-theme="light"] .notes-quote cite{color:rgba(65,75,69,.72)}html[data-theme="light"] .panel-stamp{color:#6e7772}
+  html[data-theme="light"] .kv{border-color:rgba(35,42,38,.18)}html[data-theme="light"] .kv div,html[data-theme="light"] .setting-row,html[data-theme="light"] .settings-group,html[data-theme="light"] .settings-head{border-color:rgba(35,42,38,.13)}html[data-theme="light"] .kv .v{color:#303834}
+  html[data-theme="light"] .switch-track{background:#d4d0c5;border-color:rgba(35,42,38,.32)}html[data-theme="light"] .switch-track::before{background:#737d78}
+  html[data-theme="light"] .range-control input[type="range"]::-webkit-slider-thumb{background:#e9e5da;box-shadow:0 0 0 2px rgba(255,255,255,.25)}html[data-theme="light"] .range-control input[type="range"]::-moz-range-thumb{background:#e9e5da}
+  html[data-theme="light"] .creator-easter-egg{border-color:rgba(35,42,38,.13);color:#59635e}
+
   @media (max-width:900px){
     :root{--menu-w:58px;--panel-w:calc(100vw - 96px)}
     .side-menu{width:58px;padding-left:5px;padding-right:5px}.menu-btn{width:42px;height:42px}.menu-btn span{display:none}
@@ -166,6 +255,7 @@
     .panel-head{min-height:96px;grid-template-columns:72px 1fr auto}.logo-slot{width:68px}.district-name{font-size:22px}
     #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:58px 1fr}.list-row .region{display:none}.list-title{display:none}
     .simple-view{padding:90px 20px 30px 76px}.panel,.list-shell{backdrop-filter:none;-webkit-backdrop-filter:none}
+    .settings-head{padding:18px;align-items:flex-start}.settings-status{display:none}.settings-body{padding:8px 18px 0}.setting-row{grid-template-columns:1fr;gap:12px;padding:16px 0}.switch{justify-self:start}.creator-easter-egg{margin-top:28vh}
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
@@ -186,11 +276,8 @@
   <button class="menu-btn" data-view="list" aria-label="리스트로 보기 및 검색">
     <svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/><circle cx="18" cy="18" r="3"/></svg><span>INDEX / SEARCH</span>
   </button>
-  <button class="menu-btn" data-view="legend" aria-label="권역 범례">
-    <svg viewBox="0 0 24 24"><path d="M4 19l5-14 5 14 5-14"/><path d="M4 19h16"/></svg><span>ZONE LEGEND</span>
-  </button>
-  <button class="menu-btn" data-view="system" aria-label="시스템 정보">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5M20 12h-5M12 20v-5M4 12h5"/></svg><span>TERMINAL</span>
+  <button class="menu-btn" data-view="system" aria-label="단말기 설정">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5M20 12h-5M12 20v-5M4 12h5"/></svg><span>SYSTEM / SETTINGS</span>
   </button>
   <div class="side-mark">EMBER CIVIC GEOGRAPHIC ARCHIVE</div>
 </nav>
@@ -208,10 +295,10 @@
     <svg id="amberMap" viewBox="0 0 1000 1000" role="img" aria-label="앰버 72개 구역 및 중앙 0구역 지도">
       <defs>
         <pattern id="centralPattern" width="46" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="46" height="46" fill="#020304"/>
-          <path d="M0 0H46V46H0Z M0 23H46 M23 0V46" fill="none" stroke="rgba(235,242,238,.12)" stroke-width="1"/>
-          <rect x="5" y="5" width="13" height="13" fill="rgba(235,242,238,.08)"/>
-          <rect x="28" y="28" width="13" height="13" fill="rgba(235,242,238,.08)"/>
+          <rect width="46" height="46" fill="var(--zero-pattern-bg)"/>
+          <path d="M0 0H46V46H0Z M0 23H46 M23 0V46" fill="none" stroke="var(--zero-pattern-line)" stroke-width="1"/>
+          <rect x="5" y="5" width="13" height="13" fill="var(--zero-pattern-block)"/>
+          <rect x="28" y="28" width="13" height="13" fill="var(--zero-pattern-block)"/>
         </pattern>
       </defs>
       <g id="rotor"></g>
@@ -256,11 +343,56 @@
   </div>
 </section>
 
-<section id="legendView" class="simple-view">
-  <div class="simple-card"><h2>ZONE LEGEND</h2><p>권역 범례 화면 플레이스홀더. 북부는 주황빛, 동부는 붉은빛, 남부는 남색/하늘빛, 서부는 초록빛을 기준으로 하며 실제 구역 선택 시 인접 권역 사이 색조가 연속적으로 보간됩니다.</p></div>
-</section>
-<section id="systemView" class="simple-view">
-  <div class="simple-card"><h2>TERMINAL STATUS</h2><p>시스템/설정 화면 플레이스홀더. 이후 지도 표시 옵션, 애니메이션 강도, UI 음향, 자료 분류 등의 기능을 붙일 수 있습니다.</p></div>
+<section id="systemView" class="simple-view settings-view">
+  <div class="settings-shell">
+    <header class="settings-head">
+      <div><div class="settings-eyebrow">LOCAL TERMINAL CONFIGURATION</div><h2>TERMINAL SETTINGS</h2></div>
+      <div class="settings-status">PROFILE // LOCAL<br>STATUS // ACTIVE</div>
+    </header>
+    <div class="settings-body">
+      <section class="settings-group" aria-labelledby="displaySettingsTitle">
+        <h3 id="displaySettingsTitle">DISPLAY MODE</h3>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>화면 테마</strong><span>단말기의 명암 체계를 전환합니다.</span></div>
+          <div class="segmented" role="group" aria-label="화면 테마">
+            <button type="button" class="segment-btn" data-theme-choice="dark">DARK</button>
+            <button type="button" class="segment-btn" data-theme-choice="light">LIGHT</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>배경 효과</strong><span>권역색 번짐과 십자 격자 배경을 표시합니다.</span></div>
+          <label class="switch"><input id="settingBackgroundEffects" type="checkbox" aria-label="배경 효과 표시"><span class="switch-track" aria-hidden="true"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>방위환 표시</strong><span>지도 외곽의 360° 눈금과 방위 표기를 표시합니다.</span></div>
+          <label class="switch"><input id="settingCompass" type="checkbox" aria-label="방위환 표시"><span class="switch-track" aria-hidden="true"></span></label>
+        </div>
+      </section>
+
+      <section class="settings-group" aria-labelledby="motionSettingsTitle">
+        <h3 id="motionSettingsTitle">MOTION CONTROL</h3>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>애니메이션 속도</strong><span>패널·타이핑·배경 전환과 자동 지도 이동 속도를 조절합니다.</span></div>
+          <div class="range-control"><input id="settingMotionSpeed" type="range" min="50" max="150" step="5"><output id="settingMotionSpeedValue" class="range-value">100%</output></div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>나침반 관성</strong><span>방위환이 지도 회전을 뒤따르는 지연과 반동을 조절합니다.</span></div>
+          <div class="range-control"><input id="settingInertia" type="range" min="0" max="100" step="5"><output id="settingInertiaValue" class="range-value">55%</output></div>
+        </div>
+      </section>
+
+      <section class="settings-group" aria-labelledby="textureSettingsTitle">
+        <h3 id="textureSettingsTitle">SIGNAL TEXTURE</h3>
+        <div class="setting-row">
+          <div class="setting-copy"><strong>노이즈 / 스캔라인</strong><span>아날로그 입자와 주사선의 강도를 함께 조절합니다.</span></div>
+          <div class="range-control"><input id="settingNoise" type="range" min="0" max="100" step="5"><output id="settingNoiseValue" class="range-value">50%</output></div>
+        </div>
+      </section>
+
+      <div class="settings-actions"><button id="resetSettings" type="button" class="settings-reset">RESTORE DEFAULTS</button></div>
+      <footer class="creator-easter-egg"><img src="assets/kkabong.png" alt=""><span>만든 사람: 김까봉</span></footer>
+    </div>
+  </div>
 </section>
 
 <div id="tooltip" class="tooltip"><div id="tipNo" class="n"></div><div id="tipName" class="t"></div></div>
@@ -279,6 +411,38 @@
   const tipNo=document.getElementById('tipNo');
   const tipName=document.getElementById('tipName');
   const angleReadout=document.getElementById('angleReadout');
+
+  const SETTINGS_KEY='ember-terminal-settings-v1';
+  const SETTINGS_DEFAULTS={theme:'dark',motionSpeed:100,inertia:55,backgroundEffects:true,noise:50,compass:true};
+  const clamp=(value,min,max,fallback)=>{const number=Number(value);return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback};
+  function loadTerminalSettings(){
+    try{const saved=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'null');return saved&&typeof saved==='object'?saved:{}}
+    catch(error){console.warn('Terminal settings could not be read.',error);return {}}
+  }
+  const savedSettings=loadTerminalSettings();
+  let terminalSettings={
+    theme:savedSettings.theme==='light'?'light':'dark',
+    motionSpeed:clamp(savedSettings.motionSpeed,50,150,SETTINGS_DEFAULTS.motionSpeed),
+    inertia:clamp(savedSettings.inertia,0,100,SETTINGS_DEFAULTS.inertia),
+    backgroundEffects:typeof savedSettings.backgroundEffects==='boolean'?savedSettings.backgroundEffects:SETTINGS_DEFAULTS.backgroundEffects,
+    noise:clamp(savedSettings.noise,0,100,SETTINGS_DEFAULTS.noise),
+    compass:typeof savedSettings.compass==='boolean'?savedSettings.compass:SETTINGS_DEFAULTS.compass
+  };
+  let motionScale=1,compassInertia=.55,compassEnabled=true;
+  function applyTerminalAppearance(){
+    const root=document.documentElement,noiseLevel=terminalSettings.noise/100;
+    motionScale=100/terminalSettings.motionSpeed;
+    compassInertia=terminalSettings.inertia/100;
+    compassEnabled=terminalSettings.compass;
+    root.dataset.theme=terminalSettings.theme;
+    root.style.setProperty('--motion-scale',motionScale.toFixed(3));
+    root.style.setProperty('--scanline-opacity',(noiseLevel*.32).toFixed(3));
+    root.style.setProperty('--noise-opacity',(noiseLevel*.04).toFixed(3));
+    root.classList.toggle('effects-off',!terminalSettings.backgroundEffects);
+    root.classList.toggle('compass-off',!terminalSettings.compass);
+  }
+  function saveTerminalSettings(){try{localStorage.setItem(SETTINGS_KEY,JSON.stringify(terminalSettings))}catch(error){console.warn('Terminal settings could not be saved.',error)}}
+  applyTerminalAppearance();
 
   function svgNode(tag,attrs={}){
     const node=document.createElementNS(SVG_NS,tag);
@@ -432,16 +596,18 @@
   function stepCompass(now){
     const dt=Math.min(.034,Math.max(.001,(now-compassLastTime)/1000));compassLastTime=now;
     const gap=compassTarget-compassRotation;
-    compassVelocity+=(gap*40-compassVelocity*9.5)*dt;
+    const stiffness=74-compassInertia*40,damping=14-compassInertia*5;
+    compassVelocity+=(gap*stiffness-compassVelocity*damping)*dt;
     compassRotation+=compassVelocity*dt;paintCompass();
     if(Math.abs(compassTarget-compassRotation)>.025||Math.abs(compassVelocity)>.04)compassFrame=requestAnimationFrame(stepCompass);
     else{compassRotation=compassTarget;compassVelocity=0;compassFrame=0;paintCompass()}
   }
   function setCompassTarget(target){
     compassTarget=target;
-    if(reducedMotion){compassRotation=target;compassVelocity=0;paintCompass();return}
+    if(reducedMotion||!compassEnabled||compassInertia<=.001){if(compassFrame)cancelAnimationFrame(compassFrame);compassFrame=0;compassRotation=target;compassVelocity=0;paintCompass();return}
     const gap=compassTarget-compassRotation;
-    if(Math.abs(gap)>36){compassRotation=compassTarget-Math.sign(gap)*36;compassVelocity*=.45;paintCompass()}
+    const maxLag=8+compassInertia*50;
+    if(Math.abs(gap)>maxLag){compassRotation=compassTarget-Math.sign(gap)*maxLag;compassVelocity*=.45;paintCompass()}
     if(!compassFrame&&(Math.abs(gap)>.001||Math.abs(compassVelocity)>.001)){compassLastTime=performance.now();compassFrame=requestAnimationFrame(stepCompass)}
   }
   function pointerAngle(ev){const r=stageRect||stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
@@ -453,7 +619,7 @@
     stopRotationAnimation();
     const desired=-45+(id-1)*5; // selected sector settles at the middle of the visible quarter
     const delta=((desired-rotation+540)%360)-180;
-    const start=rotation,target=rotation+delta,startTime=performance.now(),duration=720;
+    const start=rotation,target=rotation+delta,startTime=performance.now(),duration=720*motionScale;
     const step=now=>{
       const t=Math.min(1,(now-startTime)/duration);
       const eased=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -499,7 +665,7 @@
 
   function setAmbient(rgb,id){
     const target=id===0?[0,0,0]:rgb.slice(); const start=ambientRGB.slice(); const token=++ambientFrame; const t0=performance.now();
-    const step=now=>{if(token!==ambientFrame)return;const t=Math.min(1,(now-t0)/780),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;ambientRGB=start.map((v,i)=>Math.round(v+(target[i]-v)*e));ambientRGB.forEach((v,i)=>ambientA.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][i],v));if(t<1)requestAnimationFrame(step)};
+    const step=now=>{if(token!==ambientFrame)return;const t=Math.min(1,(now-t0)/(780*motionScale)),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;ambientRGB=start.map((v,i)=>Math.round(v+(target[i]-v)*e));ambientRGB.forEach((v,i)=>ambientA.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][i],v));if(t<1)requestAnimationFrame(step)};
     requestAnimationFrame(step);
   }
 
@@ -528,11 +694,11 @@
   function revealPanelSequence(token,codeText,nameText,metaText){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
-    const delay=17;
-    typePanelText(codeEl,codeText,token,delay,18);
-    typePanelText(nameEl,nameText,token,delay,48);
-    typePanelText(metaEl,metaText,token,delay,82);
-    const revealAfter=Math.max(codeText.length*delay+18,nameText.length*delay+48,metaText.length*delay+82)+96;
+    const delay=Math.max(7,17*motionScale),codeStart=18*motionScale,nameStart=48*motionScale,metaStart=82*motionScale;
+    typePanelText(codeEl,codeText,token,delay,codeStart);
+    typePanelText(nameEl,nameText,token,delay,nameStart);
+    typePanelText(metaEl,metaText,token,delay,metaStart);
+    const revealAfter=Math.max(codeText.length*delay+codeStart,nameText.length*delay+nameStart,metaText.length*delay+metaStart)+96*motionScale;
     const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.add('show')},revealAfter);
     panelTimers.push(timer);
   }
@@ -552,8 +718,43 @@
   }
   document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
 
+  // persistent terminal settings
+  const themeButtons=[...document.querySelectorAll('[data-theme-choice]')];
+  const backgroundSetting=document.getElementById('settingBackgroundEffects');
+  const compassSetting=document.getElementById('settingCompass');
+  const motionSetting=document.getElementById('settingMotionSpeed');
+  const inertiaSetting=document.getElementById('settingInertia');
+  const noiseSetting=document.getElementById('settingNoise');
+  const motionValue=document.getElementById('settingMotionSpeedValue');
+  const inertiaValue=document.getElementById('settingInertiaValue');
+  const noiseValue=document.getElementById('settingNoiseValue');
+  function syncSettingsControls(){
+    themeButtons.forEach(button=>{const active=button.dataset.themeChoice===terminalSettings.theme;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
+    backgroundSetting.checked=terminalSettings.backgroundEffects;
+    compassSetting.checked=terminalSettings.compass;
+    motionSetting.value=terminalSettings.motionSpeed;motionValue.value=`${terminalSettings.motionSpeed}%`;motionValue.textContent=motionValue.value;
+    inertiaSetting.value=terminalSettings.inertia;inertiaValue.value=`${terminalSettings.inertia}%`;inertiaValue.textContent=inertiaValue.value;
+    noiseSetting.value=terminalSettings.noise;noiseValue.value=`${terminalSettings.noise}%`;noiseValue.textContent=noiseValue.value;
+  }
+  function commitTerminalSettings(persist=true){
+    applyTerminalAppearance();syncSettingsControls();setCompassTarget(rotation);
+    if(persist)saveTerminalSettings();
+  }
+  themeButtons.forEach(button=>button.addEventListener('click',()=>{terminalSettings.theme=button.dataset.themeChoice;commitTerminalSettings()}));
+  backgroundSetting.addEventListener('change',()=>{terminalSettings.backgroundEffects=backgroundSetting.checked;commitTerminalSettings()});
+  compassSetting.addEventListener('change',()=>{terminalSettings.compass=compassSetting.checked;commitTerminalSettings()});
+  const bindRange=(input,key)=>{
+    input.addEventListener('input',()=>{terminalSettings[key]=Number(input.value);commitTerminalSettings(false)});
+    input.addEventListener('change',saveTerminalSettings);
+  };
+  bindRange(motionSetting,'motionSpeed');bindRange(inertiaSetting,'inertia');bindRange(noiseSetting,'noise');
+  document.getElementById('resetSettings').addEventListener('click',()=>{terminalSettings={...SETTINGS_DEFAULTS};commitTerminalSettings()});
+  const creatorImage=document.querySelector('.creator-easter-egg img');
+  creatorImage.addEventListener('error',()=>creatorImage.classList.add('missing'));
+  syncSettingsControls();
+
   // views
-  const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),legend:document.getElementById('legendView'),system:document.getElementById('systemView')};
+  const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),system:document.getElementById('systemView')};
   function switchView(v){
     document.querySelectorAll('.menu-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
     Object.entries(views).forEach(([k,el])=>{if(k==='map') el.style.display=v==='map'?'block':'none'; else el.classList.toggle('active',k===v)});
