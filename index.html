@@ -67,7 +67,8 @@
   .map-stage{position:absolute;right:0;bottom:0;width:min(80vw,96vh,1200px);height:min(80vw,96vh,1200px);touch-action:none;user-select:none;cursor:grab;isolation:isolate;contain:layout paint}
   .map-stage.dragging{cursor:grabbing}
   #amberMap{width:100%;height:100%;overflow:visible;shape-rendering:geometricPrecision;-webkit-tap-highlight-color:transparent}
-  #rotor{will-change:transform}
+  #rotor,#compassRotor{will-change:transform}
+  #compassRotor{pointer-events:none}
   #amberMap *{-webkit-tap-highlight-color:transparent}
   .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease,opacity .16s ease}
   .district.unnamed{fill:rgba(0,0,0,.72);stroke:rgba(150,162,156,.52);opacity:.48}
@@ -77,10 +78,18 @@
   .district.unnamed:not(.selected):hover,.district.unnamed:not(.selected):focus-visible{fill:rgba(var(--district-rgb),.18);stroke-width:1.8;opacity:1}
   .district.unnamed.selected{opacity:1}
   .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
+  .district-label.unnamed{fill:#616966;font-weight:500;opacity:.32;stroke:rgba(3,5,6,.62)}
   .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
   .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1}
   .tick{stroke:rgba(230,236,232,.45);stroke-width:.8;vector-effect:non-scaling-stroke}
+  .compass-ring{fill:none;stroke:rgba(221,230,225,.2);stroke-width:.75;vector-effect:non-scaling-stroke;pointer-events:none}
+  .compass-ticks{fill:none;vector-effect:non-scaling-stroke;pointer-events:none}
+  .compass-ticks.minor{stroke:rgba(221,230,225,.18);stroke-width:.65}
+  .compass-ticks.mid{stroke:rgba(221,230,225,.28);stroke-width:.9}
+  .compass-ticks.major{stroke:rgba(235,242,238,.42);stroke-width:1.15}
+  .compass-label{fill:#89928f;font-size:10px;font-weight:500;letter-spacing:.12em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.38;paint-order:stroke;stroke:rgba(2,3,4,.78);stroke-width:1.4px}
+  .compass-label.cardinal{fill:#b6bfba;font-size:11px;font-weight:700;letter-spacing:.16em;opacity:.52}
   .zero-base{fill:url(#centralPattern);stroke:none;pointer-events:none}
   .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,stroke-width .2s}
   .zero-zone:focus{outline:none}
@@ -206,6 +215,7 @@
         </pattern>
       </defs>
       <g id="rotor"></g>
+      <g id="compassRotor" aria-hidden="true"></g>
       <g id="zeroGroup"></g>
     </svg>
   </div>
@@ -262,6 +272,7 @@
   const innerR=222, outerR=842, zeroR=194;
   const labelR=792;
   const rotor=document.getElementById('rotor');
+  const compassRotor=document.getElementById('compassRotor');
   const zeroGroup=document.getElementById('zeroGroup');
   const stage=document.getElementById('mapStage');
   const tip=document.getElementById('tooltip');
@@ -314,7 +325,7 @@
   }
   function isPlaceholderValue(value){
     const text=String(value??'').trim();
-    return !text||text==='00'||text==='???'||/placeholder|플레이스홀더/i.test(text);
+    return !text||text==='00'||/^[?？]+$/.test(text)||/placeholder|플레이스홀더/i.test(text);
   }
   async function loadDistrictData(){
     const fallback=[...Array(73)].map((_,i)=>defaultDistrict(i));
@@ -345,7 +356,7 @@
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
     if(id===0) return [0,0,0];
-    const deg=(((id-1)*5)%360+360)%360; // clockwise offset from north: 0 N,90 E,180 S,270 W
+    const deg=(((id-1)*5)%360+360)%360; // district numbering offset: 0 N,90 W,180 S,270 E
     const keys=[[0,anchors.N],[90,anchors.W],[180,anchors.S],[270,anchors.E],[360,anchors.N]];
     for(let i=0;i<keys.length-1;i++){
       const [a0,c0]=keys[i], [a1,c1]=keys[i+1];
@@ -365,6 +376,27 @@
     ornamentLayer.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r,class:cls}));
   });
 
+  // 360-degree bearing bezel. Three compound paths keep the moving scale light.
+  const compassOuterR=924,compassLabelR=950;
+  const compassTicks={minor:'',mid:'',major:''},compassLabels=[];
+  const cardinalNames={0:'NORTH',90:'EAST',180:'SOUTH',270:'WEST'};
+  for(let bearing=0;bearing<360;bearing+=5){
+    const angle=-90+bearing;
+    const kind=bearing%30===0?'major':bearing%10===0?'mid':'minor';
+    const inner=kind==='major'?896:kind==='mid'?904:912;
+    const a=polar(inner,angle),b=polar(compassOuterR,angle);
+    compassTicks[kind]+=`M ${a.x} ${a.y} L ${b.x} ${b.y} `;
+    if(bearing%30===0){
+      const p=polar(compassLabelR,angle),direction=cardinalNames[bearing];
+      const label=svgNode('text',{x:p.x,y:p.y,class:`compass-label${direction?' cardinal':''}`,transform:`rotate(${angle+90} ${p.x} ${p.y})`});
+      label.textContent=direction?`${direction} ${String(bearing).padStart(3,'0')}°`:`${String(bearing).padStart(3,'0')}°`;
+      compassLabels.push(label);
+    }
+  }
+  compassRotor.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r:compassOuterR,class:'compass-ring'}));
+  ['minor','mid','major'].forEach(kind=>compassRotor.appendChild(svgNode('path',{d:compassTicks[kind],class:`compass-ticks ${kind}`})));
+  compassRotor.append(...compassLabels);
+
   for(let i=1;i<=72;i++){
     const centerAngle=-90-(i-1)*5;
     const start=centerAngle-2.5,end=centerAngle+2.5;
@@ -376,7 +408,9 @@
     districtLayer.appendChild(p);
 
     const lp=polar(labelR,centerAngle);
-    const t=svgNode('text',{x:lp.x,y:lp.y,class:'district-label',transform:`rotate(${centerAngle+90} ${lp.x} ${lp.y})`});
+    const labelIsNamed=Boolean(districtData[i]?.isNamed);
+    const labelClass=labelIsNamed?'district-label':'district-label unnamed';
+    const t=svgNode('text',{x:lp.x,y:lp.y,class:labelClass,'fill-opacity':labelIsNamed?'1':'.42',transform:`rotate(${centerAngle+90} ${lp.x} ${lp.y})`});
     t.textContent=String(i).padStart(2,'0');labelLayer.appendChild(t);
 
     const tp1=polar(852,start),tp2=polar(878,start);
@@ -392,8 +426,26 @@
   let selectedId=null;
 
   let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
+  const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
+  let compassRotation=0,compassTarget=0,compassVelocity=0,compassFrame=0,compassLastTime=0;
+  function paintCompass(){compassRotor.setAttribute('transform',`rotate(${compassRotation} ${center.x} ${center.y})`)}
+  function stepCompass(now){
+    const dt=Math.min(.034,Math.max(.001,(now-compassLastTime)/1000));compassLastTime=now;
+    const gap=compassTarget-compassRotation;
+    compassVelocity+=(gap*40-compassVelocity*9.5)*dt;
+    compassRotation+=compassVelocity*dt;paintCompass();
+    if(Math.abs(compassTarget-compassRotation)>.025||Math.abs(compassVelocity)>.04)compassFrame=requestAnimationFrame(stepCompass);
+    else{compassRotation=compassTarget;compassVelocity=0;compassFrame=0;paintCompass()}
+  }
+  function setCompassTarget(target){
+    compassTarget=target;
+    if(reducedMotion){compassRotation=target;compassVelocity=0;paintCompass();return}
+    const gap=compassTarget-compassRotation;
+    if(Math.abs(gap)>36){compassRotation=compassTarget-Math.sign(gap)*36;compassVelocity*=.45;paintCompass()}
+    if(!compassFrame&&(Math.abs(gap)>.001||Math.abs(compassVelocity)>.001)){compassLastTime=performance.now();compassFrame=requestAnimationFrame(stepCompass)}
+  }
   function pointerAngle(ev){const r=stageRect||stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
-  function applyRotation(){rotor.setAttribute('transform',`rotate(${rotation} ${center.x} ${center.y})`);angleReadout.textContent=`ROT ${(((rotation%360)+360)%360).toFixed(1).padStart(5,'0')}°`}
+  function applyRotation(){rotor.setAttribute('transform',`rotate(${rotation} ${center.x} ${center.y})`);setCompassTarget(rotation);angleReadout.textContent=`ROT ${(((rotation%360)+360)%360).toFixed(1).padStart(5,'0')}°`}
   function queueRotationPaint(){if(dragPaintFrame)return;dragPaintFrame=requestAnimationFrame(()=>{dragPaintFrame=0;applyRotation()})}
   function stopRotationAnimation(){if(rotationFrame){cancelAnimationFrame(rotationFrame);rotationFrame=0}}
   function rotateToDistrict(id){
