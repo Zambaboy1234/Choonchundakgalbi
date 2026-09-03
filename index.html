@@ -70,9 +70,11 @@
   #rotor{will-change:transform}
   #amberMap *{-webkit-tap-highlight-color:transparent}
   .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease}
+  .district.unnamed{fill:rgba(102,113,109,.07);stroke:rgba(160,171,166,.5)}
   .district:focus{outline:none}
   .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.2);stroke:#f4fbf7;stroke-width:1.8;filter:drop-shadow(0 0 5px var(--accent))}
   .district.selected{fill:rgba(var(--accent-rgb),.28);stroke:#fff;stroke-width:2.35;filter:drop-shadow(1px 0 rgba(255,70,78,.52)) drop-shadow(-1px 0 rgba(54,158,255,.56)) drop-shadow(0 0 8px var(--accent))}
+  .district.unnamed:not(.selected):hover,.district.unnamed:not(.selected):focus-visible{fill:rgba(var(--accent-rgb),.18);stroke-width:1.8}
   .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
   .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
@@ -323,7 +325,7 @@
       const byId=new Map(districtPayloads.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
       return fallback.map((base,i)=>{
         const row=byId.get(i)||{};
-        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo};
+        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo,isNamed:Boolean(String(row.name??'').trim())};
       });
     }catch(error){
       console.warn('District data load failed; using placeholders.',error);
@@ -331,6 +333,10 @@
     }
   }
   districtData=await loadDistrictData();
+  document.querySelectorAll('.district[data-id]').forEach(el=>{
+    const id=Number(el.dataset.id);
+    el.classList.toggle('unnamed',!districtData[id]?.isNamed);
+  });
 
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
