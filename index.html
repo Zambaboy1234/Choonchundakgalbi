@@ -334,10 +334,6 @@
     }
   }
   districtData=await loadDistrictData();
-  document.querySelectorAll('.district[data-id]').forEach(el=>{
-    const id=Number(el.dataset.id);
-    el.classList.toggle('unnamed',!districtData[id]?.isNamed);
-  });
 
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
@@ -367,7 +363,8 @@
     const centerAngle=-90-(i-1)*5;
     const start=centerAngle-2.5,end=centerAngle+2.5;
     const d=sectorPath(innerR,outerR,start,end);
-    const p=svgNode('path',{d,class:'district',tabindex:'0',role:'button','aria-label':`${i}구역`,'aria-pressed':'false'});
+    const districtClass=districtData[i]?.isNamed?'district':'district unnamed';
+    const p=svgNode('path',{d,class:districtClass,tabindex:'0',role:'button','aria-label':`${i}구역`,'aria-pressed':'false'});
     p.dataset.id=i;
     districtLayer.appendChild(p);
 
