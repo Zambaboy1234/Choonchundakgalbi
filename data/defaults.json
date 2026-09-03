@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "quote": "구역 대표 인용구 플레이스홀더",
-  "description": "구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.",
-  "leadership": "00",
+  "quote": "???",
+  "description": "???",
+  "leadership": "???",
   "location": "",
-  "industry": "00",
-  "note": "소장 또는 대원 기록 인용구 플레이스홀더.",
-  "noteAuthor": "인용자 플레이스홀더"
+  "industry": "???",
+  "note": "???",
+  "noteAuthor": "???"
 }
