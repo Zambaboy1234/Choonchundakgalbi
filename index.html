@@ -27,7 +27,7 @@
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 4px),
       linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%);
-    mix-blend-mode:screen;animation:screenFlicker 7s steps(1,end) infinite;
+    mix-blend-mode:normal;
   }
   body::after{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:49;
@@ -36,12 +36,8 @@
 
   .ambient{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.22,.61,.36,1);background:#020304;will-change:opacity}
   .ambient.on{opacity:1}
-  .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(215,222,217,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.12) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(105deg,rgba(0,0,0,.88),rgba(0,0,0,.18) 72%)}
-  .noise-layer{position:fixed;inset:-12%;z-index:48;pointer-events:none;opacity:.055;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");animation:grainShift .24s steps(2,end) infinite}
-  .scan-sweep{position:fixed;left:0;right:0;top:-18vh;height:16vh;z-index:48;pointer-events:none;opacity:.12;background:linear-gradient(180deg,transparent,rgba(var(--accent-rgb),.08),rgba(255,255,255,.16),transparent);mix-blend-mode:screen;animation:scanSweep 8.5s linear infinite}
-  @keyframes grainShift{0%{transform:translate3d(-2%,1%,0)}25%{transform:translate3d(3%,-2%,0)}50%{transform:translate3d(-1%,3%,0)}75%{transform:translate3d(2%,2%,0)}100%{transform:translate3d(-2%,1%,0)}}
-  @keyframes scanSweep{to{transform:translateY(136vh)}}
-  @keyframes screenFlicker{0%,96%,100%{opacity:.16}97%{opacity:.11}98%{opacity:.19}}
+  .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.2;background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px}
+  .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:.02;background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
 
   .frame{position:fixed;inset:18px;z-index:40;pointer-events:none;border:1px solid rgba(225,235,230,.4)}
   .corner{position:absolute;width:54px;height:54px;border-color:#eef3ef}
@@ -67,23 +63,19 @@
   .rec{color:#d8dedb}.rec::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;box-shadow:0 0 10px rgba(var(--accent-rgb),.8)}
 
   #mapView{position:absolute;inset:0;overflow:hidden;z-index:2}
-  .map-stage{position:absolute;right:0;bottom:0;width:min(82vw,98vh,1240px);height:min(82vw,98vh,1240px);touch-action:none;user-select:none;cursor:grab;isolation:isolate;filter:drop-shadow(1px 0 rgba(255,68,72,.18)) drop-shadow(-1px 0 rgba(50,142,255,.2)) drop-shadow(0 0 30px rgba(var(--accent-rgb),.1))}
+  .map-stage{position:absolute;right:0;bottom:0;width:min(80vw,96vh,1200px);height:min(80vw,96vh,1200px);touch-action:none;user-select:none;cursor:grab;isolation:isolate;contain:layout paint}
   .map-stage.dragging{cursor:grabbing}
   #amberMap{width:100%;height:100%;overflow:visible;shape-rendering:geometricPrecision;-webkit-tap-highlight-color:transparent}
+  #rotor{will-change:transform}
   #amberMap *{-webkit-tap-highlight-color:transparent}
-  .urban-ground{fill:#0a0d0e}
-  .urban-road{fill:none;stroke:rgba(226,235,230,.17);stroke-width:4.5}
-  .urban-road.minor{stroke:rgba(226,235,230,.09);stroke-width:1.2}
-  .urban-block{fill:rgba(223,233,227,.105);stroke:rgba(223,233,227,.09);stroke-width:.7}
-  .district-surface{fill:url(#urbanPattern);stroke:none;pointer-events:none;opacity:.9}
-  .district{fill:rgba(238,243,239,.025);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s ease,stroke .2s ease,stroke-width .2s ease,filter .2s ease}
+  .district{fill:rgba(238,243,239,.045);stroke:rgba(232,239,235,.76);stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .16s ease,stroke .16s ease,stroke-width .16s ease}
   .district:focus{outline:none}
-  .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.2);stroke:#f4fbf7;stroke-width:1.8;filter:drop-shadow(1.3px 0 rgba(255,70,78,.58)) drop-shadow(-1.3px 0 rgba(54,158,255,.6)) drop-shadow(0 0 7px var(--accent))}
-  .district.selected{fill:rgba(var(--accent-rgb),.28);stroke:#fff;stroke-width:2.35;filter:drop-shadow(1.6px 0 rgba(255,70,78,.72)) drop-shadow(-1.6px 0 rgba(54,158,255,.72)) drop-shadow(0 0 4px #fff) drop-shadow(0 0 13px var(--accent))}
-  .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;filter:drop-shadow(1px 0 rgba(255,55,65,.24)) drop-shadow(-1px 0 rgba(50,145,255,.24))}
+  .district:hover,.district:focus-visible{fill:rgba(var(--accent-rgb),.2);stroke:#f4fbf7;stroke-width:1.8;filter:drop-shadow(0 0 5px var(--accent))}
+  .district.selected{fill:rgba(var(--accent-rgb),.28);stroke:#fff;stroke-width:2.35;filter:drop-shadow(1px 0 rgba(255,70,78,.52)) drop-shadow(-1px 0 rgba(54,158,255,.56)) drop-shadow(0 0 8px var(--accent))}
+  .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
   .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
-  .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1;filter:drop-shadow(0 0 4px rgba(235,242,238,.16))}
+  .ring.rim{stroke:rgba(242,247,244,.9);stroke-width:2.1}
   .tick{stroke:rgba(230,236,232,.45);stroke-width:.8;vector-effect:non-scaling-stroke}
   .zero-base{fill:url(#centralPattern);stroke:none;pointer-events:none}
   .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,filter .2s}
@@ -102,7 +94,7 @@
   .tooltip .t{font-size:10px;color:#dbe2de;margin-top:3px}
 
   .info-wrap{position:fixed;left:calc(var(--menu-w) + 52px);top:104px;width:var(--panel-w);bottom:58px;z-index:15;display:grid;grid-template-rows:auto 1fr;gap:16px;pointer-events:none}
-  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.94),rgba(5,7,8,.86));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(10px);opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease,border-color .3s;pointer-events:none}
+  .panel{border:1px solid rgba(225,235,230,.36);background:linear-gradient(180deg,rgba(11,14,16,.96),rgba(5,7,8,.92));box-shadow:0 18px 50px rgba(0,0,0,.24),inset 0 0 24px rgba(255,255,255,.018);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease,border-color .3s;pointer-events:none}
   .panel.show{opacity:1;transform:translateY(0);pointer-events:auto;border-color:rgba(var(--accent-rgb),.52);box-shadow:0 18px 50px rgba(0,0,0,.34),0 0 24px rgba(var(--accent-rgb),.07),inset 0 0 24px rgba(255,255,255,.018)}
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;border:1px solid rgba(230,236,232,.28);position:relative;display:grid;place-items:center;overflow:hidden;background:#050708}
@@ -125,7 +117,7 @@
   /* list/search view */
   #listView{position:absolute;inset:0;z-index:12;display:none;padding:94px 50px 52px 126px}
   #listView.active{display:block}
-  .list-shell{height:100%;border:1px solid rgba(230,236,232,.34);background:rgba(6,8,9,.9);backdrop-filter:blur(8px);display:grid;grid-template-rows:auto 1fr;max-width:1100px}
+  .list-shell{height:100%;border:1px solid rgba(230,236,232,.34);background:rgba(6,8,9,.94);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;grid-template-rows:auto 1fr;max-width:1100px}
   .list-head{padding:18px;border-bottom:1px solid rgba(230,236,232,.22);display:flex;gap:14px;align-items:center}
   .list-title{font-family:Arial Black,Impact,sans-serif;font-size:24px;letter-spacing:.08em;min-width:210px}
   .search-wrap{flex:1;position:relative}.search-wrap::before{content:"SEARCH //";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:9px;letter-spacing:.16em;color:#65706d;pointer-events:none}
@@ -150,7 +142,7 @@
     .info-wrap{left:76px;right:20px;width:auto;top:auto;bottom:28px;height:48vh;grid-template-rows:auto 1fr}
     .panel-head{min-height:96px;grid-template-columns:72px 1fr auto}.logo-slot{width:68px}.district-name{font-size:22px}
     #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:58px 1fr}.list-row .region{display:none}.list-title{display:none}
-    .simple-view{padding:90px 20px 30px 76px}
+    .simple-view{padding:90px 20px 30px 76px}.panel,.list-shell{backdrop-filter:none;-webkit-backdrop-filter:none}
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
@@ -163,7 +155,6 @@
 <div id="ambientB" class="ambient"></div>
 <div class="grid"></div>
 <div class="noise-layer" aria-hidden="true"></div>
-<div class="scan-sweep" aria-hidden="true"></div>
 <div class="frame"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
 
 <nav class="side-menu" aria-label="보기 방식">
@@ -185,7 +176,7 @@
 <header class="brand">
   <div class="small">EXTERNAL METROPOLIS / ARCHIVE NODE</div>
   <div class="big">EMBER</div>
-  <div class="sub">DISTRICT CARTOGRAPHIC TERMINAL // REV. 0.4</div>
+  <div class="sub">DISTRICT CARTOGRAPHIC TERMINAL // REV. 0.5</div>
 </header>
 
 <div class="statusbar"><span class="rec">LIVE FEED</span><span>CAM-72 / GEO</span><span id="angleReadout">ROT 000.0°</span></div>
@@ -194,17 +185,6 @@
   <div id="mapStage" class="map-stage" aria-label="앰버 원형 지도. 드래그하여 회전할 수 있습니다.">
     <svg id="amberMap" viewBox="0 0 1000 1000" role="img" aria-label="앰버 72개 구역 및 중앙 0구역 지도">
       <defs>
-        <filter id="softGlow"><feGaussianBlur stdDeviation="1.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <pattern id="urbanPattern" width="74" height="74" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)">
-          <rect class="urban-ground" width="74" height="74"/>
-          <path class="urban-road" d="M-8 19 H82 M18 -8 V82"/>
-          <path class="urban-road minor" d="M-8 53 H82 M50 -8 V82 M-10 70 L70 -10 M12 84 L84 12"/>
-          <rect class="urban-block" x="23" y="24" width="20" height="22"/>
-          <rect class="urban-block" x="54" y="24" width="13" height="24"/>
-          <rect class="urban-block" x="23" y="57" width="19" height="11"/>
-          <rect class="urban-block" x="53" y="56" width="15" height="12"/>
-          <rect class="urban-block" x="-3" y="25" width="14" height="20"/>
-        </pattern>
         <pattern id="centralPattern" width="46" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="46" height="46" fill="#020304"/>
           <path d="M0 0H46V46H0Z M0 23H46 M23 0V46" fill="none" stroke="rgba(235,242,238,.12)" stroke-width="1"/>
@@ -280,11 +260,10 @@
     Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,value));
     return node;
   }
-  const cityLayer=svgNode('g',{'aria-hidden':'true'});
   const districtLayer=svgNode('g');
   const ornamentLayer=svgNode('g',{'aria-hidden':'true'});
   const labelLayer=svgNode('g',{'aria-hidden':'true'});
-  rotor.append(cityLayer,districtLayer,ornamentLayer,labelLayer);
+  rotor.append(districtLayer,ornamentLayer,labelLayer);
 
   const districtData=[...Array(73)].map((_,i)=>({
     id:i,
@@ -339,7 +318,6 @@
     const centerAngle=-90-(i-1)*5;
     const start=centerAngle-2.5,end=centerAngle+2.5;
     const d=sectorPath(innerR,outerR,start,end);
-    cityLayer.appendChild(svgNode('path',{d,class:'district-surface'}));
     const p=svgNode('path',{d,class:'district',tabindex:'0',role:'button','aria-label':`${i}구역`,'aria-pressed':'false'});
     p.dataset.id=i;
     districtLayer.appendChild(p);
@@ -358,9 +336,10 @@
   [68,118,158].forEach(r=>zeroGroup.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r,class:'zero-core'})));
   const zt=svgNode('text',{x:906,y:906,class:'zero-mark'});zt.textContent='00';zeroGroup.appendChild(zt);
 
-  let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0;
-  function pointerAngle(ev){const r=stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
+  let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
+  function pointerAngle(ev){const r=stageRect||stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
   function applyRotation(){rotor.setAttribute('transform',`rotate(${rotation} ${center.x} ${center.y})`);angleReadout.textContent=`ROT ${(((rotation%360)+360)%360).toFixed(1).padStart(5,'0')}°`}
+  function queueRotationPaint(){if(dragPaintFrame)return;dragPaintFrame=requestAnimationFrame(()=>{dragPaintFrame=0;applyRotation()})}
   function stopRotationAnimation(){if(rotationFrame){cancelAnimationFrame(rotationFrame);rotationFrame=0}}
   function rotateToDistrict(id){
     if(id===0)return;
@@ -376,15 +355,15 @@
     };
     rotationFrame=requestAnimationFrame(step);
   }
-  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;stopRotationAnimation();dragging=true;moved=false;dragStartX=e.clientX;dragStartY=e.clientY;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
+  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;stopRotationAnimation();stageRect=stage.getBoundingClientRect();dragging=true;moved=false;dragStartX=e.clientX;dragStartY=e.clientY;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
   stage.addEventListener('pointermove',e=>{
     if(!dragging)return;
     const a=pointerAngle(e);let d=a-lastPointerAngle;if(d>180)d-=360;if(d<-180)d+=360;
     if(Math.hypot(e.clientX-dragStartX,e.clientY-dragStartY)>5)moved=true;
-    if(moved&&Math.abs(d)>.03){rotation+=d;applyRotation()}
+    if(moved&&Math.abs(d)>.03){rotation+=d;queueRotationPaint()}
     lastPointerAngle=a;
   });
-  function endDrag(e){if(!dragging)return;dragging=false;stage.classList.remove('dragging');try{stage.releasePointerCapture(e.pointerId)}catch(_){}}
+  function endDrag(e){if(!dragging)return;dragging=false;stageRect=null;stage.classList.remove('dragging');try{stage.releasePointerCapture(e.pointerId)}catch(_){}}
   stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);
 
   function interactiveTarget(el){return el?.closest?.('.district,.zero-zone')}
