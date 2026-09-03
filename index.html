@@ -102,7 +102,7 @@
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
   .logo-fallback{padding:8px;font-size:8px;line-height:1.4;text-align:center;color:#6f7976;word-break:break-all}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
-  .district-name{font-family:Arial Black,Impact,sans-serif;font-size:28px;letter-spacing:.04em;line-height:1.05}
+  .district-name{font-family:"Arial Black",Impact,"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:28px;font-weight:900;letter-spacing:.035em;line-height:1.08;word-break:keep-all;text-rendering:geometricPrecision}
   .district-meta{font-size:9px;color:#87918e;letter-spacing:.12em;margin-top:8px}
   .close-btn{align-self:start;border:0;background:transparent;color:#7f8986;font-size:18px;cursor:pointer;padding:4px 7px}.close-btn:hover{color:#fff}
 
@@ -111,8 +111,11 @@
   .section-label{font-size:9px;letter-spacing:.22em;color:var(--accent);margin-bottom:8px}
   .panel-body h2{font-size:15px;letter-spacing:.06em;margin:0 0 10px;font-weight:600}
   .panel-body p{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:13px;color:#c5ceca;margin:0 0 18px}
+  .archive-quote{margin:4px 0 24px;padding:0 0 0 14px;border-left:2px solid rgba(var(--accent-rgb),.62);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:17px;line-height:1.55;color:#e0e7e3;font-style:italic}
+  .archive-quote cite{display:block;margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:9px;letter-spacing:.12em;color:#76817d;font-style:normal}
   .kv{display:grid;grid-template-columns:92px 1fr;border-top:1px solid rgba(230,236,232,.14);font-size:10px}
   .kv div{padding:9px 0;border-bottom:1px solid rgba(230,236,232,.1)}.kv .k{color:#7d8784}.kv .v{color:#d7deda}
+  .notes-quote{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif!important;color:rgba(197,206,202,.54)!important;font-size:12px!important;line-height:1.75;font-style:italic;opacity:.8}
   .panel-stamp{position:absolute;right:16px;bottom:12px;font-size:8px;letter-spacing:.18em;color:#53605c}
 
   /* list/search view */
@@ -211,16 +214,17 @@
   </article>
   <article id="infoBody" class="panel panel-body">
     <div class="section-label">ARCHIVE ENTRY</div>
+    <blockquote class="archive-quote"><span id="detailQuote">“구역 대표 인용구 플레이스홀더”</span><cite id="detailQuoteSource">— 출처 플레이스홀더</cite></blockquote>
     <h2 id="detailTitle">구역 설명</h2>
-    <p id="detailText">이 영역에는 추후 구역 설명이 들어갑니다. 현재는 인터랙션 및 레이아웃 테스트용 플레이스홀더입니다.</p>
+    <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
     <div class="kv">
-      <div class="k">REGION</div><div id="kvRegion" class="v">PLACEHOLDER</div>
-      <div class="k">PRIMARY</div><div class="v">PLACEHOLDER DATA</div>
-      <div class="k">STATUS</div><div class="v">ARCHIVE ENTRY AVAILABLE</div>
-      <div class="k">LOGO FILE</div><div id="kvLogo" class="v">assets/logos/district-00.png</div>
+      <div class="k">구역 번호</div><div id="kvNumber" class="v"></div>
+      <div class="k">지도부</div><div id="kvLeadership" class="v"></div>
+      <div class="k">위치</div><div id="kvLocation" class="v"></div>
+      <div class="k">대표 산업</div><div id="kvIndustry" class="v"></div>
     </div>
     <div class="section-label" style="margin-top:22px">NOTES</div>
-    <p>주요 세력, 시설, 문화, 사건, 관련 인물 등의 항목을 이 패널 안에 추가할 수 있습니다. 본문 영역만 스크롤되며 지도는 제자리에서 유지됩니다.</p>
+    <p id="noteText" class="notes-quote">“소장 또는 대원 기록 인용구 플레이스홀더.”</p>
     <div class="panel-stamp">N.O.D. AUXILIARY ARCHIVE // MOCK DATA</div>
   </article>
 </section>
@@ -416,7 +420,7 @@
   });
 
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
-  const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvRegion=document.getElementById('kvRegion'),kvLogo=document.getElementById('kvLogo');
+  const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailQuoteSource=document.getElementById('detailQuoteSource'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText');
   const logoImg=document.getElementById('logoImg'),logoFallback=document.getElementById('logoFallback');
   let selectedId=null,ambientFrame=0,ambientRGB=[0,0,0];
   const ambientA=document.getElementById('ambientA');
@@ -439,7 +443,7 @@
     selectedId=id;clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
-    codeEl.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;nameEl.textContent=d.name;metaEl.textContent=`${region} // PLACEHOLDER`;detailTitle.textContent=`${String(id).padStart(2,'0')} 구역 정보`;detailText.textContent=d.description;kvRegion.textContent=region;kvLogo.textContent=d.logo;
+    codeEl.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;nameEl.textContent=d.name;metaEl.textContent=`${region} // PLACEHOLDER`;detailQuote.textContent='“구역 대표 인용구 플레이스홀더”';detailQuoteSource.textContent='— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent='구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent='';kvLeadership.textContent='';kvLocation.textContent='';kvIndustry.textContent='';noteText.textContent='“소장 또는 대원 기록 인용구 플레이스홀더.”';
     logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.src=d.logo;logoImg.alt=`${d.name} 로고`;
     logoImg.onload=()=>{logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{logoImg.style.display='none';logoFallback.style.display='grid'};
     infoHead.classList.add('show');infoBody.classList.add('show');
