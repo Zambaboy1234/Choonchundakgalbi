@@ -129,6 +129,8 @@
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:none}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
   .district-name{font-family:"Arial Black",Impact,"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:28px;font-weight:900;letter-spacing:.035em;line-height:1.08;word-break:keep-all;text-rendering:geometricPrecision}
+  @keyframes koschei-title-jitter{0%,100%{transform:translate(0,0);opacity:1}24%{transform:translate(.45px,-.25px);opacity:.88}58%{transform:translate(-.4px,.2px);opacity:.96}78%{transform:translate(.2px,.35px);opacity:.84}}
+  .district-name.koschei-glitch{font-variant-ligatures:none;animation:koschei-title-jitter calc(.16s * var(--motion-scale)) steps(2,end) infinite;will-change:transform,opacity}
   .district-meta{font-size:9px;color:#87918e;letter-spacing:.12em;margin-top:8px}
   .close-btn{align-self:start;border:0;background:transparent;color:#7f8986;font-size:18px;cursor:pointer;padding:4px 7px}.close-btn:hover{color:#fff}
 
@@ -238,6 +240,7 @@
   html[data-theme="light"] .logo-slot img{filter:invert(1)}
   html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
   html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
+  html[data-theme="light"].zero-selected .district-code{color:#151b18}
   html[data-theme="light"] .panel-body p,html[data-theme="light"] .archive-quote,html[data-theme="light"] .setting-copy strong,html[data-theme="light"] .simple-card p{color:#303834}
   html[data-theme="light"] .setting-copy span,html[data-theme="light"] .settings-group h3,html[data-theme="light"] .settings-status,html[data-theme="light"] .range-value,html[data-theme="light"] .district-meta{color:#505b55}
   html[data-theme="light"] .side-mark,html[data-theme="light"] .map-caption .north,html[data-theme="light"] .map-caption .hint,html[data-theme="light"] .search-wrap::before,html[data-theme="light"] .list-row .region,html[data-theme="light"] .list-empty{color:#505b55}
@@ -682,8 +685,27 @@
     setAmbient(rgb,id);
   }
 
+  const koscheiGlitchFrames=['코₩&이','1749셰이','코셰9;?!','꿿2뛟(쌁!','코₩&셰이'];
+  let koscheiGlitchTimer=0;
+  function stopKoscheiGlitch(){
+    if(koscheiGlitchTimer)clearTimeout(koscheiGlitchTimer);
+    koscheiGlitchTimer=0;nameEl.classList.remove('koschei-glitch');nameEl.removeAttribute('aria-live');nameEl.removeAttribute('aria-label');
+  }
+  function startKoscheiGlitch(token,nameText){
+    stopKoscheiGlitch();
+    if(reducedMotion||token!==panelIntroToken||selectedId!==66)return;
+    const frames=[nameText,...koscheiGlitchFrames];let index=0;
+    nameEl.classList.add('koschei-glitch');nameEl.setAttribute('aria-live','off');nameEl.setAttribute('aria-label',nameText);
+    const tick=()=>{
+      if(token!==panelIntroToken||selectedId!==66){stopKoscheiGlitch();return}
+      const frame=frames[index%frames.length];nameEl.textContent=frame;index++;
+      const hold=frame===nameText?340+Math.random()*180:95+Math.random()*105;
+      koscheiGlitchTimer=setTimeout(tick,hold*motionScale);
+    };
+    tick();
+  }
   function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')})}
-  function cancelPanelIntro(){panelIntroToken++;panelTimers.forEach(clearTimeout);panelTimers=[];infoHead.classList.remove('head-reveal');infoBody.classList.remove('body-reveal');logoSlot.classList.remove('logo-reveal')}
+  function cancelPanelIntro(){panelIntroToken++;stopKoscheiGlitch();panelTimers.forEach(clearTimeout);panelTimers=[];infoHead.classList.remove('head-reveal');infoBody.classList.remove('body-reveal');logoSlot.classList.remove('logo-reveal')}
   function typePanelText(el,text,token,delay,startDelay){
     el.textContent='';let index=0;
     const tick=()=>{if(token!==panelIntroToken)return;el.textContent=text.slice(0,index+1);index++;if(index<text.length){const timer=setTimeout(tick,delay);panelTimers.push(timer)}};
@@ -697,13 +719,14 @@
     const text=String(value??'').trim()||fallback;
     return text.startsWith('—')?text:`— ${text}`;
   }
-  function revealPanelSequence(token,codeText,nameText,metaText){
+  function revealPanelSequence(token,codeText,nameText,metaText,districtId){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
     const delay=Math.max(7,17*motionScale),codeStart=18*motionScale,nameStart=48*motionScale,metaStart=82*motionScale;
     typePanelText(codeEl,codeText,token,delay,codeStart);
     typePanelText(nameEl,nameText,token,delay,nameStart);
     typePanelText(metaEl,metaText,token,delay,metaStart);
+    if(districtId===66){const glitchStart=setTimeout(()=>startKoscheiGlitch(token,nameText),(nameStart+nameText.length*delay+310*motionScale));panelTimers.push(glitchStart)}
     const revealAfter=Math.max(codeText.length*delay+codeStart,nameText.length*delay+nameStart,metaText.length*delay+metaStart)+96*motionScale;
     const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.add('show')},revealAfter);
     panelTimers.push(timer);
@@ -711,7 +734,7 @@
   function selectDistrict(id,{align=false}={}){
     cancelPanelIntro();
     const token=panelIntroToken;
-    selectedId=id;clearSelectionClasses();
+    selectedId=id;document.documentElement.classList.toggle('zero-selected',id===0);clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
@@ -719,10 +742,10 @@
     logoImg.style.display='none';logoImg.alt=`${d.name} 로고`;
     logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none'};logoImg.src=d.logo;
     infoBody.classList.remove('show');
-    revealPanelSequence(token,codeText,d.name,metaText);
+    revealPanelSequence(token,codeText,d.name,metaText,id);
     if(align)rotateToDistrict(id);
   }
-  document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
+  document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;document.documentElement.classList.remove('zero-selected');clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
 
   // persistent terminal settings
   const themeButtons=[...document.querySelectorAll('[data-theme-choice]')];
