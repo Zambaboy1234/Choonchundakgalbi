@@ -1,6 +1,8 @@
 {
   "id": 0,
-  "name": "CENTRAL DISTRICT",
-  "description": "0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.",
+  "name": "앰버 중앙 구역",
+  "quote": "Ad astra per aspera",
+  "leadership": "공안",
+  "industry": "???",
   "location": "중앙"
 }
