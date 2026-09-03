@@ -73,16 +73,9 @@
   .district.unnamed{fill:rgba(0,0,0,.72);stroke:rgba(150,162,156,.52);opacity:.48}
   .district:focus{outline:none}
   .district:hover,.district:focus-visible{fill:rgba(var(--district-rgb),.16);stroke:rgba(238,246,241,.92);stroke-width:1.35}
-  .district.selected{fill:rgba(var(--district-rgb),.3);stroke:url(#selectedGlowGradient);stroke-width:1.75}
+  .district.selected{fill:rgba(var(--district-rgb),.24);stroke:#f8fbf9;stroke-width:2.2}
   .district.unnamed:not(.selected):hover,.district.unnamed:not(.selected):focus-visible{fill:rgba(var(--district-rgb),.18);stroke-width:1.8;opacity:1}
   .district.unnamed.selected{opacity:1}
-  .map-glow{fill:none;pointer-events:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .16s ease}
-  .map-glow.active{opacity:var(--glow-opacity)}
-  .selected-glow-blur{--glow-opacity:.76;stroke:url(#selectedGlowGradient);stroke-width:15;filter:url(#selectedGlowBlur)}
-  .selected-glow-wide{--glow-opacity:.3;stroke:url(#selectedGlowGradient);stroke-width:9}
-  .selected-glow-core{--glow-opacity:1;stroke:url(#selectedGlowGradient);stroke-width:2.8}
-  .hover-glow-blur{--glow-opacity:.48;stroke:url(#hoverGlowGradient);stroke-width:9;filter:url(#hoverGlowBlur)}
-  .hover-glow-core{--glow-opacity:.68;stroke:url(#hoverGlowGradient);stroke-width:2}
   .district-label{fill:#f0f5f2;font-size:13px;font-weight:650;letter-spacing:.08em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:rgba(3,5,6,.8);stroke-width:.6px}
   .ring{fill:none;stroke:rgba(232,239,235,.78);stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
   .ring.thin{stroke:rgba(230,236,232,.22);stroke-width:.7}
@@ -92,7 +85,7 @@
   .zero-zone{fill:rgba(2,3,4,.34);stroke:#f0f5f2;stroke-width:2.1;vector-effect:non-scaling-stroke;cursor:pointer;outline:none;transition:fill .2s,stroke .2s,stroke-width .2s}
   .zero-zone:focus{outline:none}
   .zero-zone:hover,.zero-zone:focus-visible{fill:rgba(255,255,255,.09);stroke:#fff;stroke-width:2.25}
-  .zero-zone.selected{fill:rgba(255,255,255,.13);stroke:url(#selectedGlowGradient);stroke-width:2.4}
+  .zero-zone.selected{fill:rgba(255,255,255,.11);stroke:#fff;stroke-width:2.4}
   .zero-core{fill:none;stroke:rgba(235,242,238,.42);stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
   .zero-mark{fill:#f5faf7;font-size:22px;font-weight:800;letter-spacing:.12em;text-anchor:middle;dominant-baseline:middle;pointer-events:none;filter:drop-shadow(0 0 7px rgba(235,242,238,.45))}
   .map-caption{position:absolute;right:34px;bottom:34px;z-index:5;text-align:right;pointer-events:none}
@@ -167,7 +160,7 @@
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
-    .ambient,.district,.zero-zone,.map-glow{transition:none!important}
+    .ambient,.district,.zero-zone{transition:none!important}
   }
 </style>
 </head>
@@ -211,14 +204,6 @@
           <rect x="5" y="5" width="13" height="13" fill="rgba(235,242,238,.08)"/>
           <rect x="28" y="28" width="13" height="13" fill="rgba(235,242,238,.08)"/>
         </pattern>
-        <linearGradient id="selectedGlowGradient" gradientUnits="userSpaceOnUse" x1="180" y1="180" x2="940" y2="940">
-          <stop offset="0" stop-color="#6d3b1c"/><stop offset=".27" stop-color="#b06430"/><stop offset=".54" stop-color="#f0b77c"/><stop offset=".78" stop-color="#b06430"/><stop offset="1" stop-color="#6d3b1c"/>
-        </linearGradient>
-        <linearGradient id="hoverGlowGradient" gradientUnits="userSpaceOnUse" x1="180" y1="180" x2="940" y2="940">
-          <stop offset="0" stop-color="#6d3b1c"/><stop offset=".27" stop-color="#b06430"/><stop offset=".54" stop-color="#f0b77c"/><stop offset=".78" stop-color="#b06430"/><stop offset="1" stop-color="#6d3b1c"/>
-        </linearGradient>
-        <filter id="selectedGlowBlur" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="5.5"/></filter>
-        <filter id="hoverGlowBlur" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="3"/></filter>
       </defs>
       <g id="rotor"></g>
       <g id="zeroGroup"></g>
@@ -290,22 +275,9 @@
     return node;
   }
   const districtLayer=svgNode('g');
-  const effectLayer=svgNode('g',{'aria-hidden':'true'});
   const ornamentLayer=svgNode('g',{'aria-hidden':'true'});
   const labelLayer=svgNode('g',{'aria-hidden':'true'});
-  rotor.append(districtLayer,effectLayer,ornamentLayer,labelLayer);
-
-  const sectorSelectedGlow=[
-    svgNode('path',{class:'map-glow selected-glow-blur',stroke:'url(#selectedGlowGradient)',filter:'url(#selectedGlowBlur)'}),
-    svgNode('path',{class:'map-glow selected-glow-wide',stroke:'url(#selectedGlowGradient)'}),
-    svgNode('path',{class:'map-glow selected-glow-core',stroke:'url(#selectedGlowGradient)'})
-  ];
-  const sectorHoverGlow=[
-    svgNode('path',{class:'map-glow hover-glow-blur',stroke:'url(#hoverGlowGradient)',filter:'url(#hoverGlowBlur)'}),
-    svgNode('path',{class:'map-glow hover-glow-core',stroke:'url(#hoverGlowGradient)'})
-  ];
-  effectLayer.append(...sectorSelectedGlow,...sectorHoverGlow);
-  const districtGlowPaths=[];
+  rotor.append(districtLayer,ornamentLayer,labelLayer);
 
   let districtData=[];
 
@@ -381,14 +353,6 @@
     }
     return anchors.N;
   }
-  function mixColor(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
-  function setGlowGradient(kind,rgb,id){
-    const base=id===0?[229,235,231]:rgb;
-    const dark=mixColor(base,[3,5,6],.42),light=mixColor(base,[255,255,255],.58);
-    const colors=[dark,base,light,base,dark];
-    document.querySelectorAll(`#${kind}GlowGradient stop`).forEach((stop,i)=>stop.setAttribute('stop-color',`rgb(${colors[i].join(',')})`));
-  }
-
   function polar(r,deg){const rad=deg*Math.PI/180;return {x:center.x+r*Math.cos(rad),y:center.y+r*Math.sin(rad)}}
   function sectorPath(r1,r2,a0,a1){
     const p1=polar(r2,a0), p2=polar(r2,a1), p3=polar(r1,a1), p4=polar(r1,a0);
@@ -405,7 +369,6 @@
     const centerAngle=-90-(i-1)*5;
     const start=centerAngle-2.5,end=centerAngle+2.5;
     const d=sectorPath(innerR,outerR,start,end);
-    districtGlowPaths[i]=sectorPath(innerR+5,outerR-5,start+.12,end-.12);
     const districtClass=districtData[i]?.isNamed?'district':'district unnamed';
     const p=svgNode('path',{d,class:districtClass,tabindex:'0',role:'button','aria-label':`${i}구역`,'aria-pressed':'false'});
     p.style.setProperty('--district-rgb',colorFor(i).join(','));
@@ -421,41 +384,12 @@
   }
 
   zeroGroup.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r:zeroR,class:'zero-base'}));
-  const zeroSelectedGlow=[
-    svgNode('circle',{cx:center.x,cy:center.y,r:zeroR-4,class:'map-glow selected-glow-blur',stroke:'url(#selectedGlowGradient)',filter:'url(#selectedGlowBlur)'}),
-    svgNode('circle',{cx:center.x,cy:center.y,r:zeroR-4,class:'map-glow selected-glow-wide',stroke:'url(#selectedGlowGradient)'}),
-    svgNode('circle',{cx:center.x,cy:center.y,r:zeroR-4,class:'map-glow selected-glow-core',stroke:'url(#selectedGlowGradient)'})
-  ];
-  const zeroHoverGlow=[
-    svgNode('circle',{cx:center.x,cy:center.y,r:zeroR-4,class:'map-glow hover-glow-blur',stroke:'url(#hoverGlowGradient)',filter:'url(#hoverGlowBlur)'}),
-    svgNode('circle',{cx:center.x,cy:center.y,r:zeroR-4,class:'map-glow hover-glow-core',stroke:'url(#hoverGlowGradient)'})
-  ];
-  zeroGroup.append(...zeroSelectedGlow,...zeroHoverGlow);
   const z=svgNode('circle',{cx:center.x,cy:center.y,r:zeroR,class:'zero-zone',tabindex:'0',role:'button','aria-label':'0구역','aria-pressed':'false'});
   z.dataset.id='0';zeroGroup.appendChild(z);
   [68,118,158].forEach(r=>zeroGroup.appendChild(svgNode('circle',{cx:center.x,cy:center.y,r,class:'zero-core'})));
   const zt=svgNode('text',{x:906,y:906,class:'zero-mark'});zt.textContent='00';zeroGroup.appendChild(zt);
 
-  let selectedId=null,hoveredGlowId=null;
-  function toggleGlow(nodes,on){nodes.forEach(node=>node.classList.toggle('active',on))}
-  function hideHoverGlow(){
-    hoveredGlowId=null;
-    toggleGlow(sectorHoverGlow,false);toggleGlow(zeroHoverGlow,false);
-  }
-  function showHoverGlow(id){
-    if(id===selectedId){hideHoverGlow();return}
-    if(hoveredGlowId===id)return;
-    hideHoverGlow();hoveredGlowId=id;
-    setGlowGradient('hover',colorFor(id),id);
-    if(id===0)toggleGlow(zeroHoverGlow,true);
-    else{sectorHoverGlow.forEach(node=>node.setAttribute('d',districtGlowPaths[id]));toggleGlow(sectorHoverGlow,true)}
-  }
-  function hideSelectedGlow(){toggleGlow(sectorSelectedGlow,false);toggleGlow(zeroSelectedGlow,false)}
-  function showSelectedGlow(id,rgb){
-    hideSelectedGlow();setGlowGradient('selected',rgb,id);
-    if(id===0)toggleGlow(zeroSelectedGlow,true);
-    else{sectorSelectedGlow.forEach(node=>node.setAttribute('d',districtGlowPaths[id]));toggleGlow(sectorSelectedGlow,true)}
-  }
+  let selectedId=null;
 
   let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
   function pointerAngle(ev){const r=stageRect||stage.getBoundingClientRect();const cx=r.right,cy=r.bottom;return Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI}
@@ -476,7 +410,7 @@
     };
     rotationFrame=requestAnimationFrame(step);
   }
-  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;hideHoverGlow();stopRotationAnimation();stageRect=stage.getBoundingClientRect();dragging=true;moved=false;dragStartX=e.clientX;dragStartY=e.clientY;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
+  stage.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;stopRotationAnimation();stageRect=stage.getBoundingClientRect();dragging=true;moved=false;dragStartX=e.clientX;dragStartY=e.clientY;lastPointerAngle=pointerAngle(e);stage.setPointerCapture(e.pointerId);stage.classList.add('dragging')});
   stage.addEventListener('pointermove',e=>{
     if(!dragging)return;
     const a=pointerAngle(e);let d=a-lastPointerAngle;if(d>180)d-=360;if(d<-180)d+=360;
@@ -489,13 +423,11 @@
 
   function interactiveTarget(el){return el?.closest?.('.district,.zero-zone')}
   stage.addEventListener('pointermove',e=>{
-    if(dragging){tip.classList.remove('on');hideHoverGlow();return}
-    const target=interactiveTarget(e.target); if(!target){tip.classList.remove('on');hideHoverGlow();return}
-    const id=Number(target.dataset.id);showHoverGlow(id);tipNo.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;tipName.textContent=districtData[id].name;tip.style.left=e.clientX+'px';tip.style.top=e.clientY+'px';tip.classList.add('on')
+    if(dragging){tip.classList.remove('on');return}
+    const target=interactiveTarget(e.target); if(!target){tip.classList.remove('on');return}
+    const id=Number(target.dataset.id);tipNo.textContent=`DISTRICT ${String(id).padStart(2,'0')}`;tipName.textContent=districtData[id].name;tip.style.left=e.clientX+'px';tip.style.top=e.clientY+'px';tip.classList.add('on')
   });
-  stage.addEventListener('pointerleave',()=>{tip.classList.remove('on');hideHoverGlow()});
-  stage.addEventListener('focusin',e=>{const target=interactiveTarget(e.target);if(target)showHoverGlow(Number(target.dataset.id))});
-  stage.addEventListener('focusout',hideHoverGlow);
+  stage.addEventListener('pointerleave',()=>tip.classList.remove('on'));
   stage.addEventListener('click',e=>{
     if(moved){moved=false;return}
     const target=interactiveTarget(e.target);if(!target)return;
@@ -526,7 +458,7 @@
     setAmbient(rgb,id);
   }
 
-  function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')});hideSelectedGlow()}
+  function clearSelectionClasses(){document.querySelectorAll('.district.selected,.zero-zone.selected').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')})}
   function cancelPanelIntro(){panelIntroToken++;panelTimers.forEach(clearTimeout);panelTimers=[];infoHead.classList.remove('head-reveal');infoBody.classList.remove('body-reveal');logoSlot.classList.remove('logo-reveal')}
   function typePanelText(el,text,token,delay,startDelay){
     el.textContent='';let index=0;
@@ -555,9 +487,9 @@
   function selectDistrict(id,{align=false}={}){
     cancelPanelIntro();
     const token=panelIntroToken;
-    selectedId=id;clearSelectionClasses();hideHoverGlow();
+    selectedId=id;clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
-    const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);showSelectedGlow(id,rgb);
+    const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
     codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
     logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.alt=`${d.name} 로고`;
