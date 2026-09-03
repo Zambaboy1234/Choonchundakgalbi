@@ -250,7 +250,7 @@
 <div id="tooltip" class="tooltip"><div id="tipNo" class="n"></div><div id="tipName" class="t"></div></div>
 
 <script>
-(() => {
+(async () => {
   const SVG_NS='http://www.w3.org/2000/svg';
   const center={x:1000,y:1000};
   const innerR=222, outerR=842, zeroR=194;
@@ -273,45 +273,7 @@
   const labelLayer=svgNode('g',{'aria-hidden':'true'});
   rotor.append(districtLayer,ornamentLayer,labelLayer);
 
-  const districtNames={
-    1:'카스탈리엔',
-    4:'브랙튼 & 블랙스톤 LLC',
-    5:'니케아 신성수호청',
-    8:'하르덴브라흐 전략사령본부',
-    11:'볼칸 중공업',
-    15:'터미널15',
-    16:'찰스 브리게이드',
-    20:'아발론 PMC',
-    23:'제네시스 이니셔티브',
-    24:'아르고 호',
-    28:'심장',
-    32:'아스트론 학파 연구지구',
-    36:'오빗 프론티어',
-    38:'테일게이트 주식회사',
-    40:'힌튼 아카이브',
-    41:'자오선 이상현상 관리국',
-    43:'세크메트 에너제틱스',
-    44:'미라다 SA',
-    48:'천진개발공사',
-    54:'타츠우미 농축수산',
-    58:'서천 바이오 제약',
-    61:'산해경 콤비나트',
-    62:'산해경 콤비나트',
-    63:'산해경 콤비나트',
-    64:'산해경 콤비나트',
-    66:'코셰이',
-    69:'뤼미에르 예술 자치구',
-    71:'흑월상회',
-    72:'N.O.D.'
-  };
-  const districtData=[...Array(73)].map((_,i)=>({
-    id:i,
-    name:i===0?'CENTRAL DISTRICT':(districtNames[i]||'DISTRICT '+String(i).padStart(2,'0')),
-    logo:`assets/logos/district-${String(i).padStart(2,'0')}.png`,
-    description:i===0
-      ? '0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.'
-      : `${i}구역 설명 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.`
-  }));
+  let districtData=[];
 
   const anchors={
     N:[176,100,48],
@@ -322,13 +284,48 @@
 
   function regionFor(id){
     if(id===0) return 'CENTRAL';
-    const a=((-(id-1)*5)%360+360)%360; // mathematical CCW from north, 0=N,90=W,180=S,270=E
+    const a=((id-1)*5)%360; // district numbers advance westward from north: 0=N,90=W,180=S,270=E
     if(a<45 || a>=315) return 'NORTH';
     if(a<135) return 'WEST';
     if(a<225) return 'SOUTH';
     return 'EAST';
   }
   const regionLabels={CENTRAL:'중앙',NORTH:'북부',WEST:'서부',SOUTH:'남부',EAST:'동부'};
+
+  function defaultDistrict(id){
+    return {
+      id,
+      name:id===0?'CENTRAL DISTRICT':`DISTRICT ${String(id).padStart(2,'0')}`,
+      logo:`assets/logos/district-${String(id).padStart(2,'0')}.png`,
+      quote:'구역 대표 인용구 플레이스홀더',
+      quoteSource:'출처 플레이스홀더',
+      description:id===0?'0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.':'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.',
+      leadership:'00',
+      location:'',
+      industry:'00',
+      note:'소장 또는 대원 기록 인용구 플레이스홀더.'
+    };
+  }
+  async function loadDistrictData(){
+    const fallback=[...Array(73)].map((_,i)=>defaultDistrict(i));
+    try{
+      const response=await fetch('./data/districts.json',{cache:'no-store'});
+      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      const payload=await response.json();
+      const defaults=payload?.defaults&&typeof payload.defaults==='object'?payload.defaults:{};
+      const rows=Array.isArray(payload)?payload:(Array.isArray(payload?.districts)?payload.districts:[]);
+      if(!rows.length)throw new Error('districts.json has no districts');
+      const byId=new Map(rows.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
+      return fallback.map((base,i)=>{
+        const row=byId.get(i)||{};
+        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo};
+      });
+    }catch(error){
+      console.warn('District data load failed; using placeholders.',error);
+      return fallback;
+    }
+  }
+  districtData=await loadDistrictData();
 
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
@@ -450,6 +447,10 @@
     const tick=()=>{if(token!==panelIntroToken)return;el.textContent=text.slice(0,index+1);index++;if(index<text.length){const timer=setTimeout(tick,delay);panelTimers.push(timer)}};
     const timer=setTimeout(tick,startDelay);panelTimers.push(timer);
   }
+  function quoteText(value,fallback){
+    const text=String(value??'').trim()||fallback;
+    return text.startsWith('“')&&text.endsWith('”')?text:`“${text}”`;
+  }
   function revealPanelSequence(token,codeText,nameText,metaText){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
@@ -468,7 +469,7 @@
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
-    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent='“구역 대표 인용구 플레이스홀더”';detailQuoteSource.textContent='— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent='구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent='00';kvLocation.textContent=regionLabels[region]||'동서남북부';kvIndustry.textContent='00';noteText.textContent='“소장 또는 대원 기록 인용구 플레이스홀더.”';infoBody.scrollTop=0;
+    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailQuoteSource.textContent=d.quoteSource?`— ${d.quoteSource}`:'— 출처 플레이스홀더';detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');infoBody.scrollTop=0;
     logoImg.style.display='none';logoFallback.style.display='grid';logoFallback.textContent=d.logo;logoImg.alt=`${d.name} 로고`;
     logoImg.onload=()=>{if(token!==panelIntroToken)return;logoImg.style.display='block';logoFallback.style.display='none'};logoImg.onerror=()=>{if(token!==panelIntroToken)return;logoImg.style.display='none';logoFallback.style.display='grid'};logoImg.src=d.logo;
     infoBody.classList.remove('show');
@@ -494,7 +495,7 @@
     const rows=districtData.filter(d=>!query || String(d.id).padStart(2,'0').includes(query) || d.name.toLowerCase().includes(query));
     visibleDistrictIds=rows.map(d=>d.id);
     if(!rows.length){list.innerHTML='<div class="list-empty">NO MATCHING DISTRICT</div>';return}
-    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';row.innerHTML=`<span class="code">${String(d.id).padStart(2,'0')}</span><span class="name">${d.name}</span><span class="region">${regionFor(d.id)}</span>`;row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
+    rows.forEach(d=>{const row=document.createElement('button');row.type='button';row.className='list-row';const code=document.createElement('span');code.className='code';code.textContent=String(d.id).padStart(2,'0');const name=document.createElement('span');name.className='name';name.textContent=d.name;const region=document.createElement('span');region.className='region';region.textContent=regionFor(d.id);row.append(code,name,region);row.addEventListener('click',()=>{switchView('map');selectDistrict(d.id,{align:true})});list.appendChild(row)})
   }
   search.addEventListener('input',()=>renderList(search.value));
   search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
