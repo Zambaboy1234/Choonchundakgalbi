@@ -116,7 +116,7 @@
   .panel-body h2{font-size:15px;letter-spacing:.06em;margin:0 0 10px;font-weight:600}
   .panel-body p{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:13px;color:#c5ceca;margin:0 0 18px}
   .archive-quote{margin:4px 0 24px;padding:0 0 0 14px;border-left:2px solid rgba(var(--accent-rgb),.62);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif;font-size:17px;line-height:1.55;color:#e0e7e3;font-style:italic}
-  .kv{display:grid;grid-template-columns:92px 1fr;border-top:1px solid rgba(230,236,232,.14);font-size:10px}
+  .kv{display:grid;grid-template-columns:92px 1fr;border-top:1px solid rgba(230,236,232,.14);font-size:10px;margin-bottom:20px}
   .kv div{padding:9px 0;border-bottom:1px solid rgba(230,236,232,.1)}.kv .k{color:#7d8784}.kv .v{color:#d7deda}
   .notes-quote{font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif!important;color:rgba(197,206,202,.54)!important;font-size:12px!important;line-height:1.75;font-style:italic;opacity:.8}
   .notes-quote cite{display:block;margin-top:7px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:9px;letter-spacing:.12em;color:rgba(118,129,125,.78);font-style:normal}
@@ -219,14 +219,14 @@
   <article id="infoBody" class="panel panel-body">
     <div class="section-label">ARCHIVE ENTRY</div>
     <blockquote class="archive-quote"><span id="detailQuote">“구역 대표 인용구 플레이스홀더”</span></blockquote>
-    <h2 id="detailTitle">구역 설명</h2>
-    <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
     <div class="kv">
       <div class="k">구역 번호</div><div id="kvNumber" class="v">00</div>
       <div class="k">지도부</div><div id="kvLeadership" class="v">00</div>
       <div class="k">위치</div><div id="kvLocation" class="v">동서남북부</div>
       <div class="k">대표 산업</div><div id="kvIndustry" class="v">00</div>
     </div>
+    <h2 id="detailTitle">구역 설명</h2>
+    <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
     <div class="section-label" style="margin-top:22px">NOTES</div>
     <p class="notes-quote"><span id="noteText">“소장 또는 대원 기록 인용구 플레이스홀더.”</span><cite id="noteAuthor">— 인용자 플레이스홀더</cite></p>
     <div class="panel-stamp">N.O.D. AUXILIARY ARCHIVE // MOCK DATA</div>
@@ -308,14 +308,19 @@
   }
   async function loadDistrictData(){
     const fallback=[...Array(73)].map((_,i)=>defaultDistrict(i));
+    const readJson=async url=>{
+      const response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw new Error(`${url} HTTP ${response.status}`);
+      return response.json();
+    };
     try{
-      const response=await fetch('./data/districts.json',{cache:'no-store'});
-      if(!response.ok)throw new Error(`HTTP ${response.status}`);
-      const payload=await response.json();
-      const defaults=payload?.defaults&&typeof payload.defaults==='object'?payload.defaults:{};
-      const rows=Array.isArray(payload)?payload:(Array.isArray(payload?.districts)?payload.districts:[]);
-      if(!rows.length)throw new Error('districts.json has no districts');
-      const byId=new Map(rows.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
+      const ids=[...Array(73)].map((_,i)=>i);
+      const [defaultsPayload,...districtPayloads]=await Promise.all([
+        readJson('./data/defaults.json').catch(error=>{console.warn('District defaults load failed; using built-in placeholders.',error);return {}}),
+        ...ids.map(id=>readJson(`./data/districts/${String(id).padStart(2,'0')}.json`).catch(error=>{console.warn(`District ${String(id).padStart(2,'0')} load failed; using placeholders.`,error);return null}))
+      ]);
+      const defaults=defaultsPayload&&typeof defaultsPayload==='object'&&!Array.isArray(defaultsPayload)?(defaultsPayload.defaults||defaultsPayload):{};
+      const byId=new Map(districtPayloads.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
       return fallback.map((base,i)=>{
         const row=byId.get(i)||{};
         return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo};
