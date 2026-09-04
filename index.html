@@ -44,7 +44,7 @@
     box-shadow:inset 0 0 120px #000, inset 0 0 18px #000;
   }
 
-  .ambient{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:opacity;transition:opacity calc(.78s * var(--motion-scale)) ease}
+  .ambient{position:fixed;inset:0;z-index:0;opacity:1;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:background;transition:opacity calc(.28s * var(--motion-scale)) ease}
   .ambient.on{opacity:1}
   .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:var(--grid-opacity);background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px;transition:opacity calc(.28s * var(--motion-scale)) ease}
   .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:var(--noise-opacity);background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
@@ -320,7 +320,6 @@
 </head>
 <body>
 <div id="ambientA" class="ambient on"></div>
-<div id="ambientB" class="ambient"></div>
 <div class="grid"></div>
 <div class="noise-layer" aria-hidden="true"></div>
 <div class="frame"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
@@ -769,9 +768,8 @@
   const logoGlitchLayers=[...document.querySelectorAll('.logo-glitch-layer')];
   const prevDistrictButton=document.getElementById('prevDistrict'),nextDistrictButton=document.getElementById('nextDistrict');
   const FALLBACK_LOGO_PATH='assets/logos/districtnull.png';
-  let ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
-  const ambientA=document.getElementById('ambientA'),ambientB=document.getElementById('ambientB');
-  let activeAmbient=ambientA;
+  let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
+  const ambientA=document.getElementById('ambientA');
 
   function loadLogoImage(img,path,token=null){
     const isCurrent=()=>token===null?img.isConnected:token===panelIntroToken;
@@ -790,14 +788,9 @@
   }
 
   function setAmbient(rgb,id){
-    const target=id===0?[0,0,0]:rgb.slice(),next=activeAmbient===ambientA?ambientB:ambientA;
-    ambientRGB=target;
-    next.classList.remove('on');
-    target.forEach((value,index)=>next.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][index],value));
-    void next.offsetWidth;
-    activeAmbient.classList.remove('on');
-    next.classList.add('on');
-    activeAmbient=next;
+    const target=id===0?[0,0,0]:rgb.slice(); const start=ambientRGB.slice(); const token=++ambientFrame; const t0=performance.now();
+    const step=now=>{if(token!==ambientFrame)return;const t=Math.min(1,(now-t0)/(780*motionScale)),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;ambientRGB=start.map((v,i)=>Math.round(v+(target[i]-v)*e));ambientRGB.forEach((v,i)=>ambientA.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][i],v));if(t<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
   }
 
   function applyAccent(rgb,id){
