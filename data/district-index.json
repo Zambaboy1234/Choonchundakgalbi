@@ -1,0 +1,362 @@
+{
+  "version": 1,
+  "defaults": {
+    "quote": "???",
+    "description": "???",
+    "leadership": "???",
+    "location": "",
+    "industry": "???",
+    "note": "???",
+    "noteAuthor": "???"
+  },
+  "districts": [
+    {
+      "id": 0,
+      "name": "앰버 중앙 구역",
+      "leadership": "공안",
+      "location": "중앙"
+    },
+    {
+      "id": 1,
+      "name": "카스탈리엔",
+      "leadership": "카스탈리엔",
+      "industry": "‘유희’"
+    },
+    {
+      "id": 2,
+      "name": ""
+    },
+    {
+      "id": 3,
+      "name": ""
+    },
+    {
+      "id": 4,
+      "name": "모이라이 & 스트링스 LLD",
+      "leadership": "모이라이 & 스트링스",
+      "industry": "법률"
+    },
+    {
+      "id": 5,
+      "name": "니케아 신성수호청",
+      "leadership": "니케아 신성수호청",
+      "industry": "종교(반타교)"
+    },
+    {
+      "id": 6,
+      "name": ""
+    },
+    {
+      "id": 7,
+      "name": ""
+    },
+    {
+      "id": 8,
+      "name": "하르덴브라흐 전략사령본부",
+      "leadership": "하르덴브라흐 전략사령부",
+      "industry": "방산, 군수"
+    },
+    {
+      "id": 9,
+      "name": ""
+    },
+    {
+      "id": 10,
+      "name": ""
+    },
+    {
+      "id": 11,
+      "name": "볼칸 중공업",
+      "leadership": "볼칸 중공업",
+      "industry": "특허, 변리업"
+    },
+    {
+      "id": 12,
+      "name": ""
+    },
+    {
+      "id": 13,
+      "name": ""
+    },
+    {
+      "id": 14,
+      "name": ""
+    },
+    {
+      "id": 15,
+      "name": "터미널15",
+      "leadership": "터미널15",
+      "industry": "의료, 외과술, 요양"
+    },
+    {
+      "id": 16,
+      "name": "찰스 브리게이드",
+      "leadership": "치안청/보안청",
+      "industry": "수사, 형사"
+    },
+    {
+      "id": 17,
+      "name": ""
+    },
+    {
+      "id": 18,
+      "name": ""
+    },
+    {
+      "id": 19,
+      "name": ""
+    },
+    {
+      "id": 20,
+      "name": "아발론 PMC",
+      "leadership": "아발론 PMC",
+      "industry": "용병"
+    },
+    {
+      "id": 21,
+      "name": ""
+    },
+    {
+      "id": 22,
+      "name": ""
+    },
+    {
+      "id": 23,
+      "name": "제네시스 이니셔티브",
+      "leadership": "제네시스 이니셔티브",
+      "industry": "건설, 뇌과학"
+    },
+    {
+      "id": 24,
+      "name": "아르고 호",
+      "leadership": "5대 폴리스(???/???/???/???/???)",
+      "industry": "어업, 관광, 항해"
+    },
+    {
+      "id": 25,
+      "name": ""
+    },
+    {
+      "id": 26,
+      "name": ""
+    },
+    {
+      "id": 27,
+      "name": ""
+    },
+    {
+      "id": 28,
+      "name": "심장",
+      "leadership": "카르디아 채굴반",
+      "industry": "채굴, 광산업"
+    },
+    {
+      "id": 29,
+      "name": ""
+    },
+    {
+      "id": 30,
+      "name": ""
+    },
+    {
+      "id": 31,
+      "name": ""
+    },
+    {
+      "id": 32,
+      "name": "아스트론 학파 연구지구",
+      "leadership": "심포지엄",
+      "industry": "학문, 연구"
+    },
+    {
+      "id": 33,
+      "name": ""
+    },
+    {
+      "id": 34,
+      "name": ""
+    },
+    {
+      "id": 35,
+      "name": ""
+    },
+    {
+      "id": 36,
+      "name": "오빗 프론티어",
+      "leadership": "오빗 프론티어",
+      "industry": "항공우주"
+    },
+    {
+      "id": 37,
+      "name": ""
+    },
+    {
+      "id": 38,
+      "name": "테일게이트 주식회사",
+      "leadership": "테일게이트 주식회사",
+      "industry": "공간 이동, 운송업"
+    },
+    {
+      "id": 39,
+      "name": ""
+    },
+    {
+      "id": 40,
+      "name": "백우전자",
+      "leadership": "백우전자",
+      "industry": "인공지능, 통신"
+    },
+    {
+      "id": 41,
+      "name": "자오선 이상현상 관리국",
+      "leadership": "자오선 이상현상 관리국",
+      "industry": "사념체 격리, '렌즈'"
+    },
+    {
+      "id": 42,
+      "name": ""
+    },
+    {
+      "id": 43,
+      "name": "세크메트 에너제틱스",
+      "leadership": "세크메트 에너제틱스",
+      "industry": "전력 발전"
+    },
+    {
+      "id": 44,
+      "name": "미라다 SA",
+      "leadership": "미라다 SA",
+      "industry": "보험, 생명공학"
+    },
+    {
+      "id": 45,
+      "name": ""
+    },
+    {
+      "id": 46,
+      "name": ""
+    },
+    {
+      "id": 47,
+      "name": ""
+    },
+    {
+      "id": 48,
+      "name": "천진개발공사",
+      "leadership": "천진개발공사",
+      "industry": "건설"
+    },
+    {
+      "id": 49,
+      "name": ""
+    },
+    {
+      "id": 50,
+      "name": ""
+    },
+    {
+      "id": 51,
+      "name": ""
+    },
+    {
+      "id": 52,
+      "name": ""
+    },
+    {
+      "id": 53,
+      "name": ""
+    },
+    {
+      "id": 54,
+      "name": "타츠우미 농축수산",
+      "leadership": "타츠우미 농축수산",
+      "industry": "농수산, 식품제조업"
+    },
+    {
+      "id": 55,
+      "name": ""
+    },
+    {
+      "id": 56,
+      "name": ""
+    },
+    {
+      "id": 57,
+      "name": ""
+    },
+    {
+      "id": 58,
+      "name": "서천 바이오 제약",
+      "leadership": "서천 바이오 제약",
+      "industry": "의약품 제조업"
+    },
+    {
+      "id": 59,
+      "name": ""
+    },
+    {
+      "id": 60,
+      "name": ""
+    },
+    {
+      "id": 61,
+      "name": "산해경 콤비나트",
+      "industry": "방위산업"
+    },
+    {
+      "id": 62,
+      "name": "산해경 콤비나트",
+      "industry": "화학 공업"
+    },
+    {
+      "id": 63,
+      "name": "산해경 콤비나트",
+      "industry": "에너지 생산"
+    },
+    {
+      "id": 64,
+      "name": "산해경 콤비나트",
+      "industry": "건설"
+    },
+    {
+      "id": 65,
+      "name": ""
+    },
+    {
+      "id": 66,
+      "name": "코셰이",
+      "leadership": "-",
+      "industry": "-"
+    },
+    {
+      "id": 67,
+      "name": ""
+    },
+    {
+      "id": 68,
+      "name": ""
+    },
+    {
+      "id": 69,
+      "name": "뤼미에르 예술 자치구",
+      "leadership": "살롱 드 뤼미에르",
+      "industry": "예술"
+    },
+    {
+      "id": 70,
+      "name": ""
+    },
+    {
+      "id": 71,
+      "name": "흑월상회",
+      "leadership": "흑월상회",
+      "industry": "물산"
+    },
+    {
+      "id": 72,
+      "name": "N.O.D.",
+      "leadership": "총괄참모팀",
+      "industry": "장의요원업, 레버넌트 지원"
+    }
+  ]
+}
