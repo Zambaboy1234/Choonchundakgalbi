@@ -126,7 +126,41 @@
   .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;position:relative;display:grid;place-items:center;overflow:visible;background:transparent}
   .logo-slot.logo-reveal{animation:logo-reveal calc(.28s * var(--motion-scale)) ease-out both}
-  .logo-slot img{width:100%;height:100%;object-fit:contain;display:block;visibility:hidden}
+  .logo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;visibility:hidden;--logo-filter:none;filter:var(--logo-filter)}
+  .logo-glitch-layer{pointer-events:none;opacity:0}
+  @keyframes koschei-logo-main-break{
+    0%,55%,64%,83%,91%,100%{clip-path:inset(0);transform:translate(0) skewX(0) scale(1);filter:var(--logo-filter);opacity:1}
+    56%{clip-path:inset(0 0 46% 0);transform:translate(-3px,1px) skewX(-4deg) scaleX(1.04);filter:var(--logo-filter) contrast(1.35);opacity:.92}
+    58%{clip-path:inset(28% 0 18% 0);transform:translate(4px,-1px) skewX(3deg) scaleX(.97);filter:var(--logo-filter) contrast(1.6);opacity:.86}
+    60%{clip-path:inset(57% 0 0 0);transform:translate(-2px,2px) skewX(-2deg) scaleX(1.06);filter:var(--logo-filter) contrast(1.25);opacity:.9}
+    62%{clip-path:inset(8% 0 63% 0);transform:translate(3px,0) scaleX(.95);filter:var(--logo-filter);opacity:.8}
+    84%{clip-path:inset(0 0 68% 0);transform:translate(2px,-1px) skewX(5deg) scaleX(1.05);filter:var(--logo-filter) contrast(1.45);opacity:.88}
+    86%{clip-path:inset(45% 0 20% 0);transform:translate(-4px,1px) skewX(-3deg) scaleX(.96);filter:var(--logo-filter) contrast(1.7);opacity:.84}
+    89%{clip-path:inset(72% 0 0 0);transform:translate(2px,0) scaleX(1.08);filter:var(--logo-filter);opacity:.9}
+  }
+  @keyframes koschei-logo-slice-a{
+    0%,55%,64%,83%,91%,100%{opacity:0;clip-path:inset(0);transform:translate(0)}
+    56%{opacity:.86;clip-path:inset(27% 0 57% 0);transform:translate(7px,-1px) scaleX(1.08);filter:var(--logo-filter) drop-shadow(-2px 0 rgba(61,190,214,.42))}
+    58%{opacity:.78;clip-path:inset(4% 0 76% 0);transform:translate(-6px,2px) scaleX(.94);filter:var(--logo-filter)}
+    60%{opacity:.9;clip-path:inset(48% 0 33% 0);transform:translate(8px,0) scaleX(1.12);filter:var(--logo-filter) drop-shadow(2px 0 rgba(210,67,50,.38))}
+    62%{opacity:.72;clip-path:inset(76% 0 8% 0);transform:translate(-5px,-2px) scaleX(.91);filter:var(--logo-filter)}
+    84%{opacity:.82;clip-path:inset(18% 0 63% 0);transform:translate(-7px,1px) scaleX(1.1);filter:var(--logo-filter)}
+    86%{opacity:.9;clip-path:inset(52% 0 30% 0);transform:translate(7px,-1px) scaleX(.9);filter:var(--logo-filter) drop-shadow(-2px 0 rgba(61,190,214,.38))}
+    89%{opacity:.7;clip-path:inset(79% 0 4% 0);transform:translate(-4px,1px) scaleX(1.06);filter:var(--logo-filter)}
+  }
+  @keyframes koschei-logo-slice-b{
+    0%,55%,64%,83%,91%,100%{opacity:0;clip-path:inset(0);transform:translate(0)}
+    56%{opacity:.76;clip-path:inset(58% 0 22% 0);transform:translate(-6px,2px) skewX(4deg);filter:var(--logo-filter)}
+    58%{opacity:.88;clip-path:inset(34% 0 46% 0);transform:translate(8px,-2px) scaleX(1.09);filter:var(--logo-filter) drop-shadow(2px 0 rgba(210,67,50,.38))}
+    60%{opacity:.72;clip-path:inset(12% 0 70% 0);transform:translate(-7px,1px) scaleX(.92);filter:var(--logo-filter)}
+    62%{opacity:.86;clip-path:inset(62% 0 19% 0);transform:translate(6px,0) skewX(-5deg);filter:var(--logo-filter) drop-shadow(-2px 0 rgba(61,190,214,.36))}
+    84%{opacity:.72;clip-path:inset(66% 0 15% 0);transform:translate(6px,-1px) scaleX(.93);filter:var(--logo-filter)}
+    86%{opacity:.86;clip-path:inset(29% 0 52% 0);transform:translate(-8px,2px) scaleX(1.12);filter:var(--logo-filter) drop-shadow(2px 0 rgba(210,67,50,.34))}
+    89%{opacity:.8;clip-path:inset(7% 0 74% 0);transform:translate(5px,-1px) skewX(4deg);filter:var(--logo-filter)}
+  }
+  .logo-slot.koschei-logo-glitch #logoImg{animation:koschei-logo-main-break calc(1.48s * var(--motion-scale)) steps(1,end) infinite}
+  .logo-slot.koschei-logo-glitch .logo-glitch-a{animation:koschei-logo-slice-a calc(1.48s * var(--motion-scale)) steps(1,end) infinite}
+  .logo-slot.koschei-logo-glitch .logo-glitch-b{animation:koschei-logo-slice-b calc(1.48s * var(--motion-scale)) steps(1,end) infinite}
   .district-code{font-size:10px;letter-spacing:.26em;color:var(--accent);margin-bottom:5px}
   .district-name{font-family:"Arial Black",Impact,"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:28px;font-weight:900;letter-spacing:.035em;line-height:1.08;word-break:keep-all;text-rendering:geometricPrecision}
   @keyframes koschei-title-jitter{0%,100%{transform:translate(0,0);opacity:1}24%{transform:translate(.45px,-.25px);opacity:.88}58%{transform:translate(-.4px,.2px);opacity:.96}78%{transform:translate(.2px,.35px);opacity:.84}}
@@ -248,7 +282,7 @@
   html[data-theme="light"] .zero-core{stroke:rgba(35,42,38,.34)}html[data-theme="light"] .zero-mark{fill:#222925;filter:none}
   html[data-theme="light"] .panel,html[data-theme="light"] .list-shell,html[data-theme="light"] .simple-card,html[data-theme="light"] .settings-shell{border-color:rgba(35,42,38,.34);background:linear-gradient(180deg,rgba(238,235,225,.96),rgba(224,221,210,.92));box-shadow:0 18px 50px rgba(66,54,38,.14)}
   html[data-theme="light"] #districtSearch,html[data-theme="light"] .segmented,html[data-theme="light"] .settings-reset{background:#ddd9ce;color:#202723;border-color:rgba(35,42,38,.28)}
-  html[data-theme="light"] .logo-slot img,html[data-theme="light"] .list-logo{filter:invert(1)}
+  html[data-theme="light"] .logo-slot img{--logo-filter:invert(1);filter:var(--logo-filter)}html[data-theme="light"] .list-logo{filter:invert(1)}
   html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
   html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
   html[data-theme="light"] .panel-body p,html[data-theme="light"] .archive-quote,html[data-theme="light"] .setting-copy strong,html[data-theme="light"] .simple-card p{color:#303834}
@@ -332,7 +366,11 @@
 
 <section class="info-wrap" aria-live="polite">
   <article id="infoHead" class="panel panel-head">
-    <div class="logo-slot"><img id="logoImg" alt=""></div>
+    <div class="logo-slot">
+      <img id="logoImg" alt="">
+      <img class="logo-glitch-layer logo-glitch-a" alt="" aria-hidden="true">
+      <img class="logo-glitch-layer logo-glitch-b" alt="" aria-hidden="true">
+    </div>
     <div>
       <div id="districtCode" class="district-code">DISTRICT 00</div>
       <div id="districtName" class="district-name">PLACEHOLDER</div>
@@ -616,8 +654,8 @@
 
   let selectedId=null;
 
-  // Start with District 72 centered in the visible quarter (roughly a 45-degree left turn).
-  let rotation=-50, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
+  // Open on the true north reference; the startup sequence then turns to District 72.
+  let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
   const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
   let compassRotation=rotation,compassTarget=rotation,compassVelocity=0,compassFrame=0,compassLastTime=0;
   function paintCompass(){compassRotor.setAttribute('transform',`rotate(${compassRotation} ${center.x} ${center.y})`)}
@@ -688,6 +726,7 @@
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText'),noteAuthor=document.getElementById('noteAuthor');
   const logoImg=document.getElementById('logoImg'),logoSlot=document.querySelector('.logo-slot');
+  const logoGlitchLayers=[...document.querySelectorAll('.logo-glitch-layer')];
   const prevDistrictButton=document.getElementById('prevDistrict'),nextDistrictButton=document.getElementById('nextDistrict');
   const FALLBACK_LOGO_PATH='assets/logos/districtnull.png';
   let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
@@ -695,8 +734,12 @@
 
   function loadLogoImage(img,path,token=null){
     const isCurrent=()=>token===null?img.isConnected:token===panelIntroToken;
+    if(img===logoImg)logoGlitchLayers.forEach(layer=>{layer.style.visibility='hidden';layer.removeAttribute('src')});
     img.dataset.fallbackLogo='false';img.style.display='block';img.style.visibility='hidden';
-    img.onload=()=>{if(!isCurrent())return;img.style.visibility='visible'};
+    img.onload=()=>{
+      if(!isCurrent())return;img.style.visibility='visible';
+      if(img===logoImg){const resolvedSource=img.currentSrc||img.src;logoGlitchLayers.forEach(layer=>{layer.src=resolvedSource;layer.style.visibility='visible'})}
+    };
     img.onerror=()=>{
       if(!isCurrent())return;
       if(img.dataset.fallbackLogo==='true'){img.style.visibility='hidden';return}
@@ -727,13 +770,13 @@
   let koscheiGlitchTimer=0;
   function stopKoscheiGlitch(){
     if(koscheiGlitchTimer)clearTimeout(koscheiGlitchTimer);
-    koscheiGlitchTimer=0;nameEl.classList.remove('koschei-glitch');nameEl.removeAttribute('aria-live');nameEl.removeAttribute('aria-label');
+    koscheiGlitchTimer=0;nameEl.classList.remove('koschei-glitch');logoSlot.classList.remove('koschei-logo-glitch');nameEl.removeAttribute('aria-live');nameEl.removeAttribute('aria-label');
   }
   function startKoscheiGlitch(token,nameText){
     stopKoscheiGlitch();
     if(reducedMotion||token!==panelIntroToken||selectedId!==66)return;
     const frames=[nameText,...koscheiGlitchFrames];let index=0;
-    nameEl.classList.add('koschei-glitch');nameEl.setAttribute('aria-live','off');nameEl.setAttribute('aria-label',nameText);
+    nameEl.classList.add('koschei-glitch');logoSlot.classList.add('koschei-logo-glitch');nameEl.setAttribute('aria-live','off');nameEl.setAttribute('aria-label',nameText);
     const tick=()=>{
       if(token!==panelIntroToken||selectedId!==66){stopKoscheiGlitch();return}
       const frame=frames[index%frames.length];nameEl.textContent=frame;index++;
@@ -883,8 +926,9 @@
   search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
   renderList();
 
-  // initial neutral state
+  // Paint true north first, then let the terminal acquire and open District 72.
   applyRotation();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>selectDistrict(72,{align:true})));
 })();
 </script>
 </body>
