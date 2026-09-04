@@ -44,7 +44,7 @@
     box-shadow:inset 0 0 120px #000, inset 0 0 18px #000;
   }
 
-  .ambient{position:fixed;inset:0;z-index:0;opacity:1;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:background;transition:opacity calc(.28s * var(--motion-scale)) ease}
+  .ambient{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;background:radial-gradient(circle at 78% 24%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.46) 0%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.25) 30%,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.09) 56%,transparent 77%),linear-gradient(118deg,rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),.13),rgba(2,3,4,.94) 66%),#020304;will-change:opacity;transition:opacity calc(.78s * var(--motion-scale)) ease}
   .ambient.on{opacity:1}
   .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:var(--grid-opacity);background-image:linear-gradient(rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(215,222,217,.1) 1px,transparent 1px),linear-gradient(90deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(215,222,217,.22) 49.5% 50.5%,transparent 51%),radial-gradient(circle at center,transparent 0 6px,rgba(215,222,217,.2) 6.5px 7px,transparent 7.5px);background-size:32px 32px,32px 32px,96px 96px,96px 96px,96px 96px;transition:opacity calc(.28s * var(--motion-scale)) ease}
   .noise-layer{position:fixed;inset:0;z-index:48;pointer-events:none;opacity:var(--noise-opacity);background-image:repeating-radial-gradient(circle at 18% 27%,rgba(255,255,255,.11) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);background-size:16px 16px,100% 4px}
@@ -320,6 +320,7 @@
 </head>
 <body>
 <div id="ambientA" class="ambient on"></div>
+<div id="ambientB" class="ambient"></div>
 <div class="grid"></div>
 <div class="noise-layer" aria-hidden="true"></div>
 <div class="frame"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
@@ -455,7 +456,7 @@
       </section>
 
       <div class="settings-actions"><button id="resetSettings" type="button" class="settings-reset">RESTORE DEFAULTS</button></div>
-      <footer class="creator-easter-egg"><img src="assets/kkabong.png" alt=""><span>만든 사람: 김까봉</span></footer>
+      <footer class="creator-easter-egg"><img src="assets/kkabong.png" alt="" loading="lazy" decoding="async"><span>만든 사람: 김까봉</span></footer>
     </div>
   </div>
 </section>
@@ -519,7 +520,8 @@
   const labelLayer=svgNode('g',{'aria-hidden':'true'});
   rotor.append(districtLayer,ornamentLayer,labelLayer);
 
-  let districtData=[];
+  let districtData=[],districtDefaults={};
+  const districtDetailCache=new Map(),districtDetailRequests=new Map();
 
   const anchors={
     N:[176,100,48],
@@ -556,31 +558,69 @@
     const text=String(value??'').trim();
     return !text||text==='00'||/^[?？]+$/.test(text)||/placeholder|플레이스홀더/i.test(text);
   }
+  async function readJson(url){
+    const response=await fetch(url,{cache:'default'});
+    if(!response.ok)throw new Error(`${url} HTTP ${response.status}`);
+    return response.json();
+  }
+  function mergeDistrictRecord(id,row={},summary={}){
+    const base=defaultDistrict(id);
+    const merged={...base,...districtDefaults,...summary,...row,id};
+    merged.name=row.name||summary.name||base.name;
+    merged.logo=row.logo||summary.logo||base.logo;
+    merged.isNamed=Object.prototype.hasOwnProperty.call(row,'name')?!isPlaceholderValue(row.name):Object.prototype.hasOwnProperty.call(summary,'name')?!isPlaceholderValue(summary.name):Boolean(summary.isNamed);
+    return merged;
+  }
+  async function loadLegacyDistrictData(fallback,indexError){
+    console.warn('District index load failed; using the legacy full-data loader.',indexError);
+    const ids=[...Array(73)].map((_,i)=>i);
+    const [defaultsPayload,...districtPayloads]=await Promise.all([
+      readJson('./data/defaults.json').catch(error=>{console.warn('District defaults load failed; using built-in placeholders.',error);return {}}),
+      ...ids.map(id=>readJson(`./data/districts/${String(id).padStart(2,'0')}.json`).catch(error=>{console.warn(`District ${String(id).padStart(2,'0')} load failed; using placeholders.`,error);return null}))
+    ]);
+    districtDefaults=defaultsPayload&&typeof defaultsPayload==='object'&&!Array.isArray(defaultsPayload)?(defaultsPayload.defaults||defaultsPayload):{};
+    const byId=new Map(districtPayloads.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
+    return fallback.map((base,id)=>{
+      const merged=mergeDistrictRecord(id,byId.get(id)||{},base);
+      districtDetailCache.set(id,merged);
+      return merged;
+    });
+  }
   async function loadDistrictData(){
     const fallback=[...Array(73)].map((_,i)=>defaultDistrict(i));
-    const readJson=async url=>{
-      const response=await fetch(url,{cache:'no-store'});
-      if(!response.ok)throw new Error(`${url} HTTP ${response.status}`);
-      return response.json();
-    };
     try{
-      const ids=[...Array(73)].map((_,i)=>i);
-      const [defaultsPayload,...districtPayloads]=await Promise.all([
-        readJson('./data/defaults.json').catch(error=>{console.warn('District defaults load failed; using built-in placeholders.',error);return {}}),
-        ...ids.map(id=>readJson(`./data/districts/${String(id).padStart(2,'0')}.json`).catch(error=>{console.warn(`District ${String(id).padStart(2,'0')} load failed; using placeholders.`,error);return null}))
-      ]);
-      const defaults=defaultsPayload&&typeof defaultsPayload==='object'&&!Array.isArray(defaultsPayload)?(defaultsPayload.defaults||defaultsPayload):{};
-      const byId=new Map(districtPayloads.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
-      return fallback.map((base,i)=>{
-        const row=byId.get(i)||{};
-        return {...base,...defaults,...row,id:i,name:row.name||base.name,logo:row.logo||base.logo,isNamed:!isPlaceholderValue(row.name)};
-      });
-    }catch(error){
-      console.warn('District data load failed; using placeholders.',error);
-      return fallback;
+      const payload=await readJson('./data/district-index.json');
+      if(!payload||typeof payload!=='object'||!Array.isArray(payload.districts))throw new Error('District index format is invalid.');
+      districtDefaults=payload.defaults&&typeof payload.defaults==='object'&&!Array.isArray(payload.defaults)?payload.defaults:{};
+      const byId=new Map(payload.districts.filter(row=>row&&typeof row==='object').map(row=>[Number(row.id),row]).filter(([id])=>Number.isInteger(id)&&id>=0&&id<=72));
+      return fallback.map((base,id)=>mergeDistrictRecord(id,{},byId.get(id)||base));
+    }catch(indexError){
+      try{return await loadLegacyDistrictData(fallback,indexError)}
+      catch(error){console.warn('District data load failed; using placeholders.',error);return fallback.map((base,id)=>({...base,isNamed:id===0}))}
     }
   }
   districtData=await loadDistrictData();
+
+  function loadDistrictDetail(id){
+    if(districtDetailCache.has(id))return Promise.resolve(districtDetailCache.get(id));
+    if(districtDetailRequests.has(id))return districtDetailRequests.get(id);
+    const request=readJson(`./data/districts/${String(id).padStart(2,'0')}.json`)
+      .then(row=>{
+        const merged=mergeDistrictRecord(id,row,districtData[id]);
+        districtDetailCache.set(id,merged);
+        districtData[id]={...districtData[id],name:merged.name,logo:merged.logo,leadership:merged.leadership,location:merged.location,industry:merged.industry,isNamed:merged.isNamed};
+        return merged;
+      })
+      .catch(error=>{
+        console.warn(`District ${String(id).padStart(2,'0')} detail load failed; using index data.`,error);
+        const merged=mergeDistrictRecord(id,{},districtData[id]);
+        districtDetailCache.set(id,merged);
+        return merged;
+      })
+      .finally(()=>districtDetailRequests.delete(id));
+    districtDetailRequests.set(id,request);
+    return request;
+  }
 
   function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
   function colorFor(id){
@@ -729,8 +769,9 @@
   const logoGlitchLayers=[...document.querySelectorAll('.logo-glitch-layer')];
   const prevDistrictButton=document.getElementById('prevDistrict'),nextDistrictButton=document.getElementById('nextDistrict');
   const FALLBACK_LOGO_PATH='assets/logos/districtnull.png';
-  let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
-  const ambientA=document.getElementById('ambientA');
+  let ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
+  const ambientA=document.getElementById('ambientA'),ambientB=document.getElementById('ambientB');
+  let activeAmbient=ambientA;
 
   function loadLogoImage(img,path,token=null){
     const isCurrent=()=>token===null?img.isConnected:token===panelIntroToken;
@@ -749,9 +790,14 @@
   }
 
   function setAmbient(rgb,id){
-    const target=id===0?[0,0,0]:rgb.slice(); const start=ambientRGB.slice(); const token=++ambientFrame; const t0=performance.now();
-    const step=now=>{if(token!==ambientFrame)return;const t=Math.min(1,(now-t0)/(780*motionScale)),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;ambientRGB=start.map((v,i)=>Math.round(v+(target[i]-v)*e));ambientRGB.forEach((v,i)=>ambientA.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][i],v));if(t<1)requestAnimationFrame(step)};
-    requestAnimationFrame(step);
+    const target=id===0?[0,0,0]:rgb.slice(),next=activeAmbient===ambientA?ambientB:ambientA;
+    ambientRGB=target;
+    next.classList.remove('on');
+    target.forEach((value,index)=>next.style.setProperty(['--ambient-r','--ambient-g','--ambient-b'][index],value));
+    void next.offsetWidth;
+    activeAmbient.classList.remove('on');
+    next.classList.add('on');
+    activeAmbient=next;
   }
 
   function applyAccent(rgb,id){
@@ -822,7 +868,19 @@
     const targetId=adjacentNamedDistrictId(selectedId,direction);
     if(targetId!==null&&targetId!==selectedId)selectDistrict(targetId,{align:true});
   }
-  function revealPanelSequence(token,codeText,nameText,metaText,districtId){
+  function populateDistrictBody(d,id,region){
+    detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');
+    detailTitle.textContent='구역 설명';
+    detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';
+    kvNumber.textContent=String(id).padStart(2,'0');
+    kvLeadership.textContent=d.leadership??'00';
+    kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';
+    kvIndustry.textContent=d.industry??'00';
+    noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');
+    noteAuthor.textContent=attributionText(d.noteAuthor);
+    infoBody.scrollTop=0;
+  }
+  function revealPanelSequence(token,codeText,nameText,metaText,districtId,detailReady=Promise.resolve()){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
     const delay=Math.max(7,17*motionScale),codeStart=18*motionScale,nameStart=48*motionScale,metaStart=82*motionScale;
@@ -831,7 +889,9 @@
     typePanelText(metaEl,metaText,token,delay,metaStart);
     if(districtId===66){const glitchStart=setTimeout(()=>startKoscheiGlitch(token,nameText),(nameStart+nameText.length*delay+310*motionScale));panelTimers.push(glitchStart)}
     const revealAfter=Math.max(codeText.length*delay+codeStart,nameText.length*delay+nameStart,metaText.length*delay+metaStart)+96*motionScale;
-    const timer=setTimeout(()=>{if(token!==panelIntroToken)return;infoBody.classList.add('show')},revealAfter);
+    const timer=setTimeout(()=>{
+      Promise.resolve(detailReady).then(()=>{if(token===panelIntroToken)infoBody.classList.add('show')});
+    },revealAfter);
     panelTimers.push(timer);
   }
   function selectDistrict(id,{align=false}={}){
@@ -841,11 +901,17 @@
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
-    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
+    codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';
+    populateDistrictBody(d,id,region);
     logoImg.alt=`${d.name} 로고`;loadLogoImage(logoImg,d.logo,token);
     updateDistrictNav(id);
     infoBody.classList.remove('show');
-    revealPanelSequence(token,codeText,d.name,metaText,id);
+    const detailReady=loadDistrictDetail(id).then(detail=>{
+      if(token!==panelIntroToken||selectedId!==id)return;
+      populateDistrictBody(detail,id,region);
+      if(detail.logo!==d.logo){logoImg.alt=`${detail.name} 로고`;loadLogoImage(logoImg,detail.logo,token)}
+    });
+    revealPanelSequence(token,codeText,d.name,metaText,id,detailReady);
     if(align)rotateToDistrict(id);
   }
   prevDistrictButton.addEventListener('click',()=>navigateNamedDistrict(-1));
@@ -889,11 +955,15 @@
 
   // views
   const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),system:document.getElementById('systemView')};
+  let listRendered=false;
   function switchView(v){
     document.querySelectorAll('.menu-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
     Object.entries(views).forEach(([k,el])=>{if(k==='map') el.style.display=v==='map'?'block':'none'; else el.classList.toggle('active',k===v)});
     document.querySelector('.info-wrap').style.display=v==='map'?'grid':'none';
-    if(v==='list') document.getElementById('districtSearch').focus();
+    if(v==='list'){
+      if(!listRendered)renderList(search.value);
+      document.getElementById('districtSearch').focus();
+    }
   }
   document.querySelectorAll('.menu-btn').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
 
@@ -908,6 +978,7 @@
     return [code,String(d.id),`${d.id}구역`,d.name,meaningfulSearchValue(d.leadership),location,region,meaningfulSearchValue(d.industry)].join(' ').toLowerCase();
   }
   function renderList(q=''){
+    listRendered=true;
     const tokens=q.trim().toLowerCase().split(/\s+/).filter(Boolean);list.innerHTML='';
     const rows=districtData.filter(d=>!tokens.length || tokens.every(token=>districtSearchText(d).includes(token)));
     visibleDistrictIds=rows.map(d=>d.id);
@@ -924,8 +995,6 @@
   }
   search.addEventListener('input',()=>renderList(search.value));
   search.addEventListener('keydown',e=>{if(e.key==='Enter'&&search.value.trim()&&visibleDistrictIds.length){e.preventDefault();switchView('map');selectDistrict(visibleDistrictIds[0],{align:true})}});
-  renderList();
-
   // Paint true north first, then let the terminal acquire and open District 72.
   applyRotation();
   requestAnimationFrame(()=>requestAnimationFrame(()=>selectDistrict(72,{align:true})));
