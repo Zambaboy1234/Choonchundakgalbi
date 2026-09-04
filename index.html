@@ -214,6 +214,7 @@
 
   /* pale paper-terminal theme */
   html[data-theme="light"]{--bg:#d7d3c6;--panel:#ece8dedd;--panel-2:#e4e0d4e8;--line:#303733;--muted:#616a66;--zero-pattern-bg:#c9c5b9;--zero-pattern-line:rgba(35,42,38,.16);--zero-pattern-block:rgba(35,42,38,.09);color-scheme:light}
+  html[data-theme="light"].zero-selected{--accent:#1c2420!important;--accent-rgb:28,36,32!important}
   html[data-theme="light"],html[data-theme="light"] body{background:#d7d3c6;color:#1d2420}
   html[data-theme="light"] body::before{background:repeating-linear-gradient(0deg,rgba(25,31,28,.045) 0 1px,transparent 1px 4px),linear-gradient(90deg,transparent 49.8%,rgba(25,31,28,.04) 50%,transparent 50.2%);mix-blend-mode:multiply}
   html[data-theme="light"] body::after{box-shadow:inset 0 0 110px rgba(58,49,35,.28),inset 0 0 16px rgba(58,49,35,.14)}
@@ -244,7 +245,6 @@
   html[data-theme="light"] .logo-slot img,html[data-theme="light"] .list-logo{filter:invert(1)}
   html[data-theme="light"] .tooltip{background:#eeeadef2;border-color:rgba(35,42,38,.36)}html[data-theme="light"] .tooltip .t{color:#2b332f}
   html[data-theme="light"] .district-name,html[data-theme="light"] .list-title,html[data-theme="light"] .settings-head h2{color:#1d2420}
-  html[data-theme="light"].zero-selected .district-code{color:#151b18}
   html[data-theme="light"] .panel-body p,html[data-theme="light"] .archive-quote,html[data-theme="light"] .setting-copy strong,html[data-theme="light"] .simple-card p{color:#303834}
   html[data-theme="light"] .setting-copy span,html[data-theme="light"] .settings-group h3,html[data-theme="light"] .settings-status,html[data-theme="light"] .range-value,html[data-theme="light"] .district-meta{color:#505b55}
   html[data-theme="light"] .side-mark,html[data-theme="light"] .map-caption .north,html[data-theme="light"] .map-caption .hint,html[data-theme="light"] .search-wrap::before,html[data-theme="light"] .list-row .region,html[data-theme="light"] .list-empty{color:#505b55}
@@ -697,9 +697,14 @@
 
   function applyAccent(rgb,id){
     const root=document.documentElement;
+    root.classList.toggle('zero-selected',id===0);
     if(id===0){root.style.setProperty('--accent','#e5ebe7');root.style.setProperty('--accent-rgb','229,235,231')}
     else{root.style.setProperty('--accent',`rgb(${rgb.join(',')})`);root.style.setProperty('--accent-rgb',rgb.join(','))}
     setAmbient(rgb,id);
+  }
+  function resetAccent(){
+    const root=document.documentElement;root.classList.remove('zero-selected');
+    root.style.setProperty('--accent','#b56b35');root.style.setProperty('--accent-rgb','181,107,53');setAmbient([0,0,0],0);
   }
 
   const koscheiGlitchFrames=['코₩&이','1749셰이','코셰9;?!','꿿2뛟(쌁!','코₩&셰이'];
@@ -751,7 +756,7 @@
   function selectDistrict(id,{align=false}={}){
     cancelPanelIntro();
     const token=panelIntroToken;
-    selectedId=id;document.documentElement.classList.toggle('zero-selected',id===0);clearSelectionClasses();
+    selectedId=id;clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
@@ -761,7 +766,7 @@
     revealPanelSequence(token,codeText,d.name,metaText,id);
     if(align)rotateToDistrict(id);
   }
-  document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;document.documentElement.classList.remove('zero-selected');clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');applyAccent([0,0,0],0)});
+  document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');resetAccent()});
 
   // persistent terminal settings
   const themeButtons=[...document.querySelectorAll('[data-theme-choice]')];
