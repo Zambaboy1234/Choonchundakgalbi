@@ -123,7 +123,7 @@
   @keyframes panel-head-reveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
   @keyframes logo-reveal{0%{opacity:0;transform:translateY(4px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
   .panel-head.head-reveal{animation:panel-head-reveal calc(.34s * var(--motion-scale)) cubic-bezier(.22,.7,.25,1) both}
-  .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center}
+  .panel-head{min-height:122px;padding:14px;display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:center}
   .logo-slot{width:92px;aspect-ratio:1;position:relative;display:grid;place-items:center;overflow:visible;background:transparent}
   .logo-slot.logo-reveal{animation:logo-reveal calc(.28s * var(--motion-scale)) ease-out both}
   .logo-slot img{width:100%;height:100%;object-fit:contain;display:block;visibility:hidden}
@@ -132,7 +132,13 @@
   @keyframes koschei-title-jitter{0%,100%{transform:translate(0,0);opacity:1}24%{transform:translate(.45px,-.25px);opacity:.88}58%{transform:translate(-.4px,.2px);opacity:.96}78%{transform:translate(.2px,.35px);opacity:.84}}
   .district-name.koschei-glitch{font-variant-ligatures:none;animation:koschei-title-jitter calc(.16s * var(--motion-scale)) steps(2,end) infinite;will-change:transform,opacity}
   .district-meta{font-size:9px;color:#87918e;letter-spacing:.12em;margin-top:8px}
-  .close-btn{align-self:start;border:0;background:transparent;color:#7f8986;font-size:18px;cursor:pointer;padding:4px 7px}.close-btn:hover{color:#fff}
+  .panel-actions{align-self:stretch;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px}
+  .close-btn{border:0;background:transparent;color:#7f8986;font-size:18px;cursor:pointer;padding:3px 7px}.close-btn:hover{color:#fff}
+  .district-nav{display:flex;align-items:center;border:1px solid rgba(225,235,230,.2);background:rgba(255,255,255,.018)}
+  .district-nav-btn{width:34px;height:30px;border:0;background:transparent;color:#8f9995;font:15px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;cursor:pointer;transition:color calc(.16s * var(--motion-scale)) ease,background calc(.16s * var(--motion-scale)) ease,box-shadow calc(.16s * var(--motion-scale)) ease}
+  .district-nav-btn+ .district-nav-btn{border-left:1px solid rgba(225,235,230,.16)}
+  .district-nav-btn:hover,.district-nav-btn:focus-visible{color:var(--accent);background:rgba(var(--accent-rgb),.1);box-shadow:inset 0 -2px 0 rgba(var(--accent-rgb),.72);outline:none}
+  .district-nav-btn:disabled{color:#4d5652;cursor:default;opacity:.42;box-shadow:none;background:transparent}
 
   .panel-body{padding:18px 20px 22px;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;line-height:1.75}
   .panel-body::-webkit-scrollbar{width:6px}.panel-body::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.4)}
@@ -252,6 +258,8 @@
   html[data-theme="light"] .close-btn{color:#59645e}html[data-theme="light"] .close-btn:hover,html[data-theme="light"] .close-btn:focus-visible{color:#151b18;outline:none}
   html[data-theme="light"] .segment-btn{color:#59645e}html[data-theme="light"] .segment-btn:hover,html[data-theme="light"] .segment-btn:focus-visible{color:#151b18}
   html[data-theme="light"] .notes-quote{color:rgba(48,56,52,.62)!important}html[data-theme="light"] .notes-quote cite{color:rgba(65,75,69,.72)}html[data-theme="light"] .panel-stamp{color:#6e7772}
+  html[data-theme="light"] .district-nav{border-color:rgba(35,42,38,.24);background:rgba(35,42,38,.025)}
+  html[data-theme="light"] .district-nav-btn{color:#55605a}html[data-theme="light"] .district-nav-btn+ .district-nav-btn{border-left-color:rgba(35,42,38,.2)}
   html[data-theme="light"] .kv{border-color:rgba(35,42,38,.18)}html[data-theme="light"] .kv div,html[data-theme="light"] .setting-row,html[data-theme="light"] .settings-group,html[data-theme="light"] .settings-head{border-color:rgba(35,42,38,.13)}html[data-theme="light"] .kv .v{color:#303834}
   html[data-theme="light"] .switch-track{background:#d4d0c5;border-color:rgba(35,42,38,.32)}html[data-theme="light"] .switch-track::before{background:#737d78}
   html[data-theme="light"] .range-control input[type="range"]::-webkit-slider-runnable-track{background:linear-gradient(90deg,rgba(var(--accent-rgb),.82),rgba(35,42,38,.28))}
@@ -330,7 +338,13 @@
       <div id="districtName" class="district-name">PLACEHOLDER</div>
       <div id="districtMeta" class="district-meta">CENTRAL // PLACEHOLDER</div>
     </div>
-    <button id="closeInfo" class="close-btn" aria-label="정보 닫기">×</button>
+    <div class="panel-actions">
+      <button id="closeInfo" class="close-btn" aria-label="정보 닫기">×</button>
+      <nav class="district-nav" aria-label="이름이 지정된 구역 탐색">
+        <button id="prevDistrict" type="button" class="district-nav-btn" aria-label="이전 이름 지정 구역" title="이전 구역">←</button>
+        <button id="nextDistrict" type="button" class="district-nav-btn" aria-label="다음 이름 지정 구역" title="다음 구역">→</button>
+      </nav>
+    </div>
   </article>
   <article id="infoBody" class="panel panel-body">
     <div class="section-label">ARCHIVE ENTRY</div>
@@ -602,9 +616,10 @@
 
   let selectedId=null;
 
-  let rotation=0, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
+  // Start with District 72 centered in the visible quarter (roughly a 45-degree left turn).
+  let rotation=-50, dragging=false, moved=false, lastPointerAngle=0,dragStartX=0,dragStartY=0,rotationFrame=0,stageRect=null,dragPaintFrame=0;
   const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
-  let compassRotation=0,compassTarget=0,compassVelocity=0,compassFrame=0,compassLastTime=0;
+  let compassRotation=rotation,compassTarget=rotation,compassVelocity=0,compassFrame=0,compassLastTime=0;
   function paintCompass(){compassRotor.setAttribute('transform',`rotate(${compassRotation} ${center.x} ${center.y})`)}
   function stepCompass(now){
     const dt=Math.min(.034,Math.max(.001,(now-compassLastTime)/1000));compassLastTime=now;
@@ -673,6 +688,7 @@
   const infoHead=document.getElementById('infoHead'),infoBody=document.getElementById('infoBody');
   const codeEl=document.getElementById('districtCode'),nameEl=document.getElementById('districtName'),metaEl=document.getElementById('districtMeta'),detailQuote=document.getElementById('detailQuote'),detailTitle=document.getElementById('detailTitle'),detailText=document.getElementById('detailText'),kvNumber=document.getElementById('kvNumber'),kvLeadership=document.getElementById('kvLeadership'),kvLocation=document.getElementById('kvLocation'),kvIndustry=document.getElementById('kvIndustry'),noteText=document.getElementById('noteText'),noteAuthor=document.getElementById('noteAuthor');
   const logoImg=document.getElementById('logoImg'),logoSlot=document.querySelector('.logo-slot');
+  const prevDistrictButton=document.getElementById('prevDistrict'),nextDistrictButton=document.getElementById('nextDistrict');
   const FALLBACK_LOGO_PATH='assets/logos/districtnull.png';
   let ambientFrame=0,ambientRGB=[0,0,0],panelIntroToken=0,panelTimers=[];
   const ambientA=document.getElementById('ambientA');
@@ -741,6 +757,28 @@
     const text=String(value??'').trim()||fallback;
     return text.startsWith('—')?text:`— ${text}`;
   }
+  function adjacentNamedDistrictId(id,direction){
+    const namedIds=districtData.filter(d=>d.isNamed).map(d=>d.id);
+    if(!namedIds.length)return null;
+    if(direction>0)return namedIds.find(candidate=>candidate>id)??namedIds[0];
+    return [...namedIds].reverse().find(candidate=>candidate<id)??namedIds[namedIds.length-1];
+  }
+  function updateDistrictNav(id){
+    const previousId=adjacentNamedDistrictId(id,-1),nextId=adjacentNamedDistrictId(id,1);
+    const setButton=(button,targetId,label)=>{
+      const target=targetId===null||targetId===id?null:districtData[targetId];
+      button.disabled=!target;
+      button.title=target?`${label}: ${String(targetId).padStart(2,'0')} ${target.name}`:label;
+      button.setAttribute('aria-label',button.title);
+    };
+    setButton(prevDistrictButton,previousId,'이전 이름 지정 구역');
+    setButton(nextDistrictButton,nextId,'다음 이름 지정 구역');
+  }
+  function navigateNamedDistrict(direction){
+    if(selectedId===null)return;
+    const targetId=adjacentNamedDistrictId(selectedId,direction);
+    if(targetId!==null&&targetId!==selectedId)selectDistrict(targetId,{align:true});
+  }
   function revealPanelSequence(token,codeText,nameText,metaText,districtId){
     infoHead.classList.remove('head-reveal');void infoHead.offsetWidth;infoHead.classList.add('show','head-reveal');
     logoSlot.classList.remove('logo-reveal');void logoSlot.offsetWidth;logoSlot.classList.add('logo-reveal');
@@ -762,10 +800,13 @@
     const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
     codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');detailTitle.textContent='구역 설명';detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';kvNumber.textContent=String(id).padStart(2,'0');kvLeadership.textContent=d.leadership??'00';kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';kvIndustry.textContent=d.industry??'00';noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');noteAuthor.textContent=attributionText(d.noteAuthor);infoBody.scrollTop=0;
     logoImg.alt=`${d.name} 로고`;loadLogoImage(logoImg,d.logo,token);
+    updateDistrictNav(id);
     infoBody.classList.remove('show');
     revealPanelSequence(token,codeText,d.name,metaText,id);
     if(align)rotateToDistrict(id);
   }
+  prevDistrictButton.addEventListener('click',()=>navigateNamedDistrict(-1));
+  nextDistrictButton.addEventListener('click',()=>navigateNamedDistrict(1));
   document.getElementById('closeInfo').addEventListener('click',()=>{cancelPanelIntro();selectedId=null;clearSelectionClasses();infoHead.classList.remove('show');infoBody.classList.remove('show');resetAccent()});
 
   // persistent terminal settings
