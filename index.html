@@ -301,17 +301,99 @@
   html[data-theme="light"] .range-control input[type="range"]::-webkit-slider-thumb{background:#e9e5da;box-shadow:0 0 0 2px rgba(255,255,255,.25)}html[data-theme="light"] .range-control input[type="range"]::-moz-range-thumb{background:#e9e5da}
   html[data-theme="light"] .creator-easter-egg{border-color:rgba(35,42,38,.13);color:#59635e}
 
+  /* Responsive terminal layout. Desktop rules above remain untouched. */
   @media (max-width:900px){
-    :root{--menu-w:58px;--panel-w:calc(100vw - 96px)}
-    .side-menu{width:58px;padding-left:5px;padding-right:5px}.menu-btn{width:42px;height:42px}.menu-btn span{display:none}
-    .brand{left:94px}.brand .big{font-size:26px}.statusbar{display:none}
-    .map-stage{width:115vw;height:115vw;max-width:none;max-height:none}
-    .info-wrap{left:76px;right:20px;width:auto;top:auto;bottom:28px;height:48vh;grid-template-rows:auto 1fr}
-    .panel-head{min-height:96px;grid-template-columns:72px 1fr auto}.logo-slot{width:68px}.district-name{font-size:22px}
-    #listView{padding:86px 20px 30px 76px}.list-row{grid-template-columns:48px 1fr}.list-row .region{display:none}.list-title{display:none}.list-name-cell{gap:8px}.list-logo{width:26px;height:26px;flex-basis:26px}
-    .simple-view{padding:90px 20px 30px 76px}.panel,.list-shell{backdrop-filter:none;-webkit-backdrop-filter:none}
-    .settings-head{padding:18px;align-items:flex-start}.settings-status{display:none}.settings-body{padding:8px 18px 0}.setting-row{grid-template-columns:1fr;gap:12px;padding:16px 0}.switch{justify-self:start}.creator-easter-egg{margin-top:28vh}
+    :root{--menu-w:58px;--panel-w:calc(100vw - 20px)}
+    html,body{height:100%;height:100dvh}
+    .frame{inset:6px}.corner{width:30px;height:30px}
+    .statusbar,.side-mark,.menu-btn span{display:none}
+    .map-stage{max-width:none;max-height:none}
+    .panel,.list-shell{backdrop-filter:none;-webkit-backdrop-filter:none}
+    .panel-body{-webkit-overflow-scrolling:touch;padding:16px 17px 22px;line-height:1.75}
+    .panel-body p{font-size:15px;line-height:1.75}
+    .panel-body h2{font-size:16px}
+    .section-label{font-size:10px}
+    .archive-quote{font-size:16px;line-height:1.6;margin-bottom:20px}
+    .kv{grid-template-columns:88px minmax(0,1fr);font-size:12px}
+    .kv div{padding:10px 0;overflow-wrap:anywhere}
+    .notes-quote{font-size:13px!important}
+    .notes-quote cite{font-size:10px}
+    .close-btn{min-width:38px;min-height:38px;padding:7px;font-size:20px}
+    .district-nav-btn{width:38px;height:36px}
+    #districtSearch{height:46px;font-size:16px}
+    .list-row{min-height:58px}
+    .list-row .code{font-size:13px}.list-row .name{font-size:14px}.list-row .region{font-size:10px}
+    .simple-view,.settings-view{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .setting-copy strong{font-size:14px}.setting-copy span{font-size:12px}
   }
+
+  @media (max-width:900px) and (orientation:portrait){
+    .side-menu{
+      left:8px;right:8px;top:auto;bottom:max(8px,env(safe-area-inset-bottom));
+      width:auto;height:58px;padding:5px 10px;gap:14px;flex-direction:row;justify-content:center;
+      border:1px solid rgba(220,230,224,.34);
+      background:linear-gradient(180deg,rgba(3,5,6,.94),rgba(3,5,6,.82));
+    }
+    .menu-btn{width:48px;height:46px;flex:0 0 48px}.menu-btn svg{width:22px;height:22px}
+    .brand{left:14px;top:max(12px,env(safe-area-inset-top))}
+    .brand .small{font-size:8px;letter-spacing:.2em}.brand .big{font-size:26px}.brand .sub{font-size:8px;letter-spacing:.12em}
+    #mapView{height:100vh;height:100dvh}
+    .map-stage{right:0;bottom:calc(74px + env(safe-area-inset-bottom));width:min(140vw,900px);height:min(140vw,900px)}
+    .map-caption{left:14px;right:14px;top:max(82px,calc(env(safe-area-inset-top) + 66px));bottom:auto;max-width:none}
+    .map-caption .north{font-size:9px;line-height:1.45}.map-caption .hint{font-size:8px;line-height:1.45}
+    .info-wrap{
+      left:10px;right:auto;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));width:min(620px,calc(100vw - 20px));
+      height:min(60vh,580px);height:min(60dvh,580px);gap:8px;grid-template-rows:auto minmax(0,1fr);
+    }
+    .panel-head{min-height:104px;padding:10px;grid-template-columns:64px minmax(0,1fr) auto;gap:10px}
+    .logo-slot{width:62px}.district-code{font-size:10px}.district-name{font-size:clamp(20px,6vw,26px)}
+    .district-meta{font-size:9px;line-height:1.4;letter-spacing:.09em}
+    .panel-actions{gap:8px}.panel-stamp{text-align:left}
+    #listView{padding:max(76px,calc(env(safe-area-inset-top) + 64px)) 10px calc(76px + env(safe-area-inset-bottom))}
+    .list-shell{width:100%;height:100%}
+    .list-head{padding:12px}.list-title,.search-wrap::before{display:none}
+    #districtSearch{padding:0 13px}
+    .district-list{padding:6px}
+    .list-row{grid-template-columns:42px minmax(0,1fr) 54px;gap:8px;padding:8px}
+    .list-name-cell{gap:9px}.list-logo{width:32px;height:32px;flex-basis:32px}
+    .simple-view{padding:max(76px,calc(env(safe-area-inset-top) + 64px)) 10px calc(76px + env(safe-area-inset-bottom))}
+    .settings-shell{width:100%;min-height:calc(100dvh + 210px)}
+    .settings-head{min-height:92px;padding:16px;align-items:flex-start}.settings-status{display:none}
+    .settings-head h2{font-size:23px}.settings-body{padding:7px 16px 0}
+    .settings-group{padding-top:18px}.setting-row{grid-template-columns:1fr;gap:12px;padding:16px 0}
+    .segmented,.range-control{width:100%}.switch{justify-self:start}
+    .creator-easter-egg{margin-top:24vh;padding-bottom:18px}
+  }
+
+  @media (max-width:900px) and (orientation:landscape){
+    .side-menu{left:6px;top:6px;bottom:6px;width:52px;padding:52px 5px 8px;gap:8px}
+    .menu-btn{width:42px;height:42px}.menu-btn svg{width:20px;height:20px}
+    .brand{left:70px;top:10px}.brand .small{display:none}.brand .big{font-size:22px}.brand .sub{font-size:8px;letter-spacing:.12em;margin-top:3px}
+    .map-stage{right:0;bottom:0;width:140vh;height:140vh}
+    .map-caption{right:10px;bottom:10px}.map-caption .north{font-size:8px}.map-caption .hint{font-size:7px}
+    .info-wrap{left:70px;right:auto;top:58px;bottom:10px;width:min(45vw,430px);height:auto;gap:8px;grid-template-rows:auto minmax(0,1fr)}
+    .panel-head{min-height:84px;padding:8px;grid-template-columns:52px minmax(0,1fr) auto;gap:8px}
+    .logo-slot{width:50px}.district-code{font-size:9px}.district-name{font-size:18px}.district-meta{font-size:8px;margin-top:5px}
+    .panel-body{padding:12px 14px 18px}.panel-body p{font-size:14px}.archive-quote{font-size:15px;margin-bottom:16px}
+    .kv{grid-template-columns:78px minmax(0,1fr);font-size:11px;margin-bottom:16px}.kv div{padding:8px 0}
+    .close-btn{min-width:38px;min-height:38px}.district-nav-btn{width:38px;height:36px}
+    #listView{padding:58px 10px 10px 64px}
+    .list-head{padding:10px}.list-title{display:none}.search-wrap::before{left:10px}.district-list{padding:6px}
+    .list-row{grid-template-columns:44px minmax(0,1fr) 70px;gap:8px;padding:7px 9px}.list-name-cell{gap:8px}.list-logo{width:28px;height:28px;flex-basis:28px}
+    .simple-view{padding:58px 10px 10px 64px}
+    .settings-shell{min-height:calc(100dvh + 160px)}
+    .settings-head{min-height:84px;padding:14px 18px}.settings-head h2{font-size:22px}
+    .settings-body{padding:7px 18px 0}.setting-row{min-height:70px;gap:16px}
+    .creator-easter-egg{margin-top:22vh}
+  }
+
+  @media (max-width:900px) and (orientation:landscape) and (max-height:430px){
+    .side-menu{padding-top:46px}.brand .sub{display:none}
+    .info-wrap{top:46px}.panel-head{min-height:76px}.logo-slot{width:46px}.district-name{font-size:17px}
+    #listView,.simple-view{padding-top:46px}
+  }
+
+  @media (hover:none) and (pointer:coarse){.tooltip{display:none}}
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
     .ambient,.district,.zero-zone{transition:none!important}
