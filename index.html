@@ -72,6 +72,7 @@
   .brand .sub{font-size:9px;letter-spacing:.2em;color:#727b79;margin-top:6px}
 
   .statusbar{position:fixed;right:34px;top:32px;z-index:20;display:flex;gap:18px;align-items:center;font-size:9px;letter-spacing:.18em;color:#8d9794;pointer-events:none}
+  body:not([data-view="map"]) .brand,body:not([data-view="map"]) .statusbar{display:none}
   .rec{color:#d8dedb}.rec::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;box-shadow:0 0 10px rgba(var(--accent-rgb),.8)}
 
   #mapView{position:absolute;inset:0;overflow:hidden;z-index:2}
@@ -349,15 +350,15 @@
     .logo-slot{width:62px}.district-code{font-size:10px}.district-name{font-size:clamp(20px,6vw,26px)}
     .district-meta{font-size:9px;line-height:1.4;letter-spacing:.09em}
     .panel-actions{gap:8px}.panel-stamp{text-align:left}
-    #listView{padding:max(76px,calc(env(safe-area-inset-top) + 64px)) 10px calc(76px + env(safe-area-inset-bottom))}
+    #listView{top:max(8px,env(safe-area-inset-top));bottom:calc(74px + env(safe-area-inset-bottom));padding:0 10px 8px}
     .list-shell{width:100%;height:100%}
     .list-head{padding:12px}.list-title,.search-wrap::before{display:none}
     #districtSearch{padding:0 13px}
     .district-list{padding:6px}
     .list-row{grid-template-columns:42px minmax(0,1fr) 54px;gap:8px;padding:8px}
     .list-name-cell{gap:9px}.list-logo{width:32px;height:32px;flex-basis:32px}
-    .simple-view{padding:max(76px,calc(env(safe-area-inset-top) + 64px)) 10px calc(76px + env(safe-area-inset-bottom))}
-    .settings-shell{width:100%;min-height:calc(100dvh + 210px)}
+    .simple-view{top:max(8px,env(safe-area-inset-top));bottom:calc(74px + env(safe-area-inset-bottom));padding:0 10px 8px}
+    .settings-shell{width:100%;min-height:100%}
     .settings-head{min-height:92px;padding:16px;align-items:flex-start}.settings-status{display:none}
     .settings-head h2{font-size:23px}.settings-body{padding:7px 16px 0}
     .settings-group{padding-top:18px}.setting-row{grid-template-columns:1fr;gap:12px;padding:16px 0}
@@ -381,7 +382,7 @@
     .list-head{padding:10px}.list-title{display:none}.search-wrap::before{left:10px}.district-list{padding:6px}
     .list-row{grid-template-columns:44px minmax(0,1fr) 70px;gap:8px;padding:7px 9px}.list-name-cell{gap:8px}.list-logo{width:28px;height:28px;flex-basis:28px}
     .simple-view{padding:58px 10px 10px 64px}
-    .settings-shell{min-height:calc(100dvh + 160px)}
+    .settings-shell{min-height:100%}
     .settings-head{min-height:84px;padding:14px 18px}.settings-head h2{font-size:22px}
     .settings-body{padding:7px 18px 0}.setting-row{min-height:70px;gap:16px}
     .creator-easter-egg{margin-top:22vh}
@@ -400,7 +401,7 @@
   }
 </style>
 </head>
-<body>
+<body data-view="map">
 <div id="ambientA" class="ambient on"></div>
 <div class="grid"></div>
 <div class="noise-layer" aria-hidden="true"></div>
@@ -455,8 +456,8 @@
     </div>
     <div>
       <div id="districtCode" class="district-code">DISTRICT 00</div>
-      <div id="districtName" class="district-name">PLACEHOLDER</div>
-      <div id="districtMeta" class="district-meta">CENTRAL // PLACEHOLDER</div>
+      <div id="districtName" class="district-name">구역 기록</div>
+      <div id="districtMeta" class="district-meta">CENTRAL // DISTRICT ARCHIVE</div>
     </div>
     <div class="panel-actions">
       <button id="closeInfo" class="close-btn" aria-label="정보 닫기">×</button>
@@ -468,18 +469,18 @@
   </article>
   <article id="infoBody" class="panel panel-body">
     <div class="section-label">ARCHIVE ENTRY</div>
-    <blockquote class="archive-quote"><span id="detailQuote">“구역 대표 인용구 플레이스홀더”</span></blockquote>
+    <blockquote class="archive-quote"><span id="detailQuote">“등록된 대표 문구 없음”</span></blockquote>
     <div class="kv">
       <div class="k">구역 번호</div><div id="kvNumber" class="v">00</div>
-      <div class="k">지도부</div><div id="kvLeadership" class="v">00</div>
-      <div class="k">위치</div><div id="kvLocation" class="v">동서남북부</div>
-      <div class="k">대표 산업</div><div id="kvIndustry" class="v">00</div>
+      <div class="k">지도부</div><div id="kvLeadership" class="v">미등록</div>
+      <div class="k">위치</div><div id="kvLocation" class="v">미등록</div>
+      <div class="k">대표 산업</div><div id="kvIndustry" class="v">미등록</div>
     </div>
     <h2 id="detailTitle">구역 설명</h2>
-    <p id="detailText">구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.</p>
+    <p id="detailText">현재 등록된 구역 설명이 없습니다.</p>
     <div class="section-label" style="margin-top:22px">NOTES</div>
-    <p class="notes-quote"><span id="noteText">“소장 또는 대원 기록 인용구 플레이스홀더.”</span><cite id="noteAuthor">— 인용자 플레이스홀더</cite></p>
-    <div class="panel-stamp">N.O.D. AUXILIARY ARCHIVE // MOCK DATA</div>
+    <p class="notes-quote"><span id="noteText">“등록된 현장 기록 없음.”</span><cite id="noteAuthor">— 기록자 미상</cite></p>
+    <div class="panel-stamp">N.O.D. GEOGRAPHIC ARCHIVE // DISTRICT RECORD</div>
   </article>
 </section>
 
@@ -626,13 +627,13 @@
       id,
       name:id===0?'CENTRAL DISTRICT':`DISTRICT ${String(id).padStart(2,'0')}`,
       logo:`assets/logos/district-${String(id).padStart(2,'0')}.png`,
-      quote:'구역 대표 인용구 플레이스홀더',
-      description:id===0?'0구역 설명 플레이스홀더. 공안 소유의 중앙 구역입니다.':'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.',
-      leadership:'00',
+      quote:'',
+      description:'',
+      leadership:'',
       location:'',
-      industry:'00',
-      note:'소장 또는 대원 기록 인용구 플레이스홀더.',
-      noteAuthor:'인용자 플레이스홀더'
+      industry:'',
+      note:'',
+      noteAuthor:''
     };
   }
   function isPlaceholderValue(value){
@@ -917,8 +918,12 @@
     const text=String(value??'').trim()||fallback;
     return text.startsWith('“')&&text.endsWith('”')?text:`“${text}”`;
   }
-  function attributionText(value,fallback='인용자 플레이스홀더'){
-    const text=String(value??'').trim()||fallback;
+  function recordText(value,fallback='미등록'){
+    const text=String(value??'').trim();
+    return isPlaceholderValue(text)?fallback:text;
+  }
+  function attributionText(value,fallback='기록자 미상'){
+    const text=recordText(value,fallback);
     return text.startsWith('—')?text:`— ${text}`;
   }
   function adjacentNamedDistrictId(id,direction){
@@ -944,14 +949,14 @@
     if(targetId!==null&&targetId!==selectedId)selectDistrict(targetId,{align:true});
   }
   function populateDistrictBody(d,id,region){
-    detailQuote.textContent=quoteText(d.quote,'구역 대표 인용구 플레이스홀더');
+    detailQuote.textContent=quoteText(recordText(d.quote,'등록된 대표 문구 없음'),'등록된 대표 문구 없음');
     detailTitle.textContent='구역 설명';
-    detailText.textContent=d.description||'구역 본 설명문 플레이스홀더. 실제 설정 텍스트로 교체할 수 있습니다.';
+    detailText.textContent=recordText(d.description,'현재 등록된 구역 설명이 없습니다.');
     kvNumber.textContent=String(id).padStart(2,'0');
-    kvLeadership.textContent=d.leadership??'00';
-    kvLocation.textContent=d.location||regionLabels[region]||'동서남북부';
-    kvIndustry.textContent=d.industry??'00';
-    noteText.textContent=quoteText(d.note,'소장 또는 대원 기록 인용구 플레이스홀더');
+    kvLeadership.textContent=recordText(d.leadership);
+    kvLocation.textContent=recordText(d.location,regionLabels[region]||'미등록');
+    kvIndustry.textContent=recordText(d.industry);
+    noteText.textContent=quoteText(recordText(d.note,'등록된 현장 기록 없음.'),'등록된 현장 기록 없음.');
     noteAuthor.textContent=attributionText(d.noteAuthor);
     infoBody.scrollTop=0;
   }
@@ -975,7 +980,7 @@
     selectedId=id;clearSelectionClasses();
     const el=id===0?z:document.querySelector(`.district[data-id="${id}"]`);el?.classList.add('selected');el?.setAttribute('aria-pressed','true');
     const d=districtData[id],region=regionFor(id),rgb=colorFor(id);applyAccent(rgb,id);
-    const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // PLACEHOLDER`;
+    const codeText=`DISTRICT ${String(id).padStart(2,'0')}`,metaText=`${region} // DISTRICT ARCHIVE`;
     codeEl.textContent='';nameEl.textContent='';metaEl.textContent='';
     populateDistrictBody(d,id,region);
     logoImg.alt=`${d.name} 로고`;loadLogoImage(logoImg,d.logo,token);
@@ -1032,6 +1037,7 @@
   const views={map:document.getElementById('mapView'),list:document.getElementById('listView'),system:document.getElementById('systemView')};
   let listRendered=false;
   function switchView(v){
+    document.body.dataset.view=v;
     document.querySelectorAll('.menu-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
     Object.entries(views).forEach(([k,el])=>{if(k==='map') el.style.display=v==='map'?'block':'none'; else el.classList.toggle('active',k===v)});
     document.querySelector('.info-wrap').style.display=v==='map'?'grid':'none';
